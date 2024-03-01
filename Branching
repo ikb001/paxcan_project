@@ -1,0 +1,14 @@
+[ikb001@bisonnet-hpc paxcan_ipyrad_analyses]$ ipyrad -p params-merged.txt -b merged0 - H07_858-9 G12_NN H12_NN F12_
+NN E12_NN D12_NN C12_NN
+  loading Assembly: merged
+  from saved path: ~/paxcan_ipyrad_analyses/merged.json
+  dropping 7 samples
+  creating a new branch called 'merged0' with 185 Samples
+  writing new params file to params-merged0.txt
+
+[ikb001@bisonnet-hpc paxcan_ipyrad_analyses]$ ipyrad -p params-merged0.txt -b merged1 - B12_NN
+  loading Assembly: merged0
+  from saved path: ~/paxcan_ipyrad_analyses/merged0.json
+  dropping 1 samples
+  creating a new branch called 'merged1' with 184 Samples
+  writing new params file to params-merged1.txt
