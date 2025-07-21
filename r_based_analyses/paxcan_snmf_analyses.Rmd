@@ -1,0 +1,262 @@
+---
+title: "paxcan_snmf_analyses"
+author: "Isaac Buabeng"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Description of the analyses: The analyses performed in this script were performed following the instructions and suggestions made in http://membres-timc.imag.fr/Olivier.Francois/tutoRstructure.pdf
+
+
+## Load the necessary libraries
+```{r}
+library(vcfR)
+library(LEA)
+library(ggplot2)
+library(ggspatial)
+library(sf)
+library(rnaturalearth)    # for easy sf basemaps
+library(scatterpie)
+library(tidyverse)
+```
+
+
+
+# load data and set genotype
+```{r}
+# load data
+paxcan.geno <- vcf2geno("C:/Users/User/Downloads/14pops_biallelic_snps_miss0.4_thin10.newID.mac1.maf0.01.ldkb1r0.8.vcf")
+
+#set genotype
+genotype = paxcan.geno
+```
+
+
+# run snmf
+```{r}
+paxcan_snmf = snmf(genotype, K = 1:14, entropy = T, ploidy=2, project = "new")
+```
+
+
+
+# Running 1000 iterations on the initial run
+```{r}
+paxcan_snmf_reps = snmf(genotype, 
+                        K = 1:14, 
+                        CPU = 4, 
+                        entropy = T, 
+                        ploidy=2, 
+                        project = "new", 
+                        iterations = 1000, 
+                        repetitions = 10)
+```
+
+
+
+# find the number of clusters
+```{r}
+# make an initial plot of the reps
+plot(paxcan_snmf_reps)
+
+# get the cross-entropy value for each run
+ce_min <- sapply(1:14, function(k) min(cross.entropy(paxcan_snmf_reps, K = k)))
+
+#get the change in values between each k
+delta_ce <- diff(ce_min)
+
+# plot the distribution of changes across the different Ks
+plot(2:14, delta_ce, 
+     type = "b", 
+     pch = 19,
+     col = "blue",
+     xlab = "K (Number of Ancestral Populations)",
+     ylab = "Change in Cross-Entropy (ΔCE)",
+     main = "Cross-Entropy Slope Analysis")
+
+
+# Threshold of -0.01 means "improvement less than 0.01"
+abline(h = -0.01, col = "red", lty = 2, lwd = 3) # heuristic cutoff
+
+# Add text annotation
+text(x = 8, y = -0.01, 
+     labels = "Diminishing returns threshold (-0.01)", 
+     pos = 3, col = "red", font = 2)
+
+# Identify elbow point where improvement becomes small
+elbow_k <- which(delta_ce >= -0.01)[1] + 1  # First K where improvement < 0.01
+if(!is.na(elbow_k)) {
+  abline(v = elbow_k, col = "green", lty = 3, lwd = 2)
+  text(x = elbow_k, y = min(delta_ce), 
+       labels = paste("Elbow at K =", elbow_k), 
+       pos = 4, col = "green", font = 2)
+
+}
+# looks like we have a cut off at k=11
+```
+
+
+# Now let's plot the ideal Ks
+## verifying names
+```{r}
+# Read VCF file 
+vcf <- read.vcfR("C:/Users/User/Downloads/14pops_biallelic_snps_miss0.4_thin10.newID.mac1.maf0.01.ldkb1r0.8.vcf")
+
+# Extract sample names from VCF header
+vcf_sample_names <- colnames(vcf@gt)[-1]  # Remove first column (FORMAT)
+print("Sample names from VCF:")
+print(vcf_sample_names)
+
+# Read your sample names file
+sample_names_file <- readLines("C:/Users/User/Documents/paxcan_project/sample_names")
+print("Sample names from file:")
+print(sample_names_file)
+
+# Check if they match in order
+if(identical(vcf_sample_names, sample_names_file)) {
+  print("Sample names match perfectly!")
+} else {
+  print("Sample names don't match or are in different order")
+  print("Checking differences...")
+}
+```
+
+
+
+# visualize k=14 for the 14 populations in the initial analyses
+```{r}
+# 1. Determine optimal run for K = 14
+best14 <- which.min(cross.entropy(paxcan_snmf_reps, K = 14))
+
+# 2. Custom colour palette
+my.colors1 <- c("dodgerblue3", "green", "burlywood4", "orange", "yellow",
+                "darkviolet", "black", "tomato", "gold", "chocolate", 
+                "plum", "steelblue", "forestgreen", "turquoise")
+
+# 3. Extract Q-matrix for that run
+q_matrix <- Q(paxcan_snmf_reps, K = 14, run = best14)
+
+## 4. Plot using LEA's barchart function with sample labels
+barchart(paxcan_snmf_reps, K = 14, run = best14,
+         border = NA, 
+         space = 0,
+         col = my.colors1,
+         xlab = "Individuals",
+         ylab = "Ancestry proportions",
+         main = "Ancestry matrix",
+         lab = TRUE,              # Provide sample names here
+         sort.by.Q = TRUE) -> bp         # arrange according structuring
+
+# The barchart function should handle the labeling automatically
+
+axis(1, at = 1:length(bp$order), 
+      labels = bp$order, las = 3, 
+      cex.axis = .4)
+```
+
+
+
+# visualize k=11 for our best K from the cross entropy analyses
+```{r}
+# Determine optimal run for K = 11
+best11 <- which.min(cross.entropy(paxcan_snmf_reps, K = 11))
+
+# Custom colour palette
+my.colors2 <- c("dodgerblue3", "green", "burlywood4", "orange", "yellow",
+                "darkviolet", "black", "tomato", "gold", "chocolate", "plum")
+
+# Extract Q-matrix for that run
+q_matrix1 <- Q(paxcan_snmf_reps, K = 11, run = best11)
+
+## Plot using LEA's barchart function with sample labels
+barchart(paxcan_snmf_reps, K = 11, run = best11,
+         border = NA, 
+         space = 0,
+         col = my.colors2,
+         xlab = "Individuals",
+         ylab = "Ancestry proportions",
+         main = "Ancestry matrix",
+         lab = TRUE,
+         sort.by.Q = TRUE) -> bp1         # arrange according structuring
+
+axis(1, at = 1:length(bp1$order), 
+      labels = bp1$order, las = 3, 
+      cex.axis = .4)
+
+# Aggregate by population for cleaner distribution visualization
+pop_distribution <- all_cords %>%
+  bind_cols(as.data.frame(q_matrix1)) %>%
+  group_by(NAME_OF_POPULATION, lon., lat.) %>%
+  summarise(across(V1:V11, mean), .groups = 'drop')
+
+# Compute pie radius 
+pop_distribution$pie_radius <- diff(range(pop_distribution$lat.)) * 0.05
+
+# Load sf data
+world_sf  <- ne_countries(scale = "medium", returnclass = "sf")
+states_sf <- ne_states(country = "United States of America", returnclass = "sf")
+
+# Build the plot with sf:
+ggplot() +
+  geom_sf(data = world_sf, fill = "#f0f0f0", color = NA) +
+  geom_sf(data = states_sf, fill = NA, color = "gray50", size = 0.3) +
+  geom_scatterpie(
+    data = pop_distribution,
+    aes(x = lon., y = lat., r = pie_radius),
+    cols  = paste0("V", 1:11),
+    color = "white", alpha = 0.85
+  ) +
+  coord_sf(
+    xlim = range(pop_distribution$lon.) + c(-2, 2),
+    ylim = range(pop_distribution$lat.) + c(-2, 2),
+    expand = FALSE
+  ) +
+  annotation_scale(location = "bl", width_hint = 0.2) +
+  annotation_north_arrow(
+    location = "bl", which_north = "true",
+    style = north_arrow_fancy_orienteering
+  ) +
+  theme_void() +
+  ggtitle("Population Admixture Distribution (K = 11)")
+
+
+# save the map
+ggsave("admixture_map_k11.png", 
+       width = 12, height = 8, dpi = 300)
+```
+
+
+
+
+# visualize k=2 for our best K from the cross entropy analyses
+```{r}
+# Determine optimal run for K = 2
+best2 <- which.min(cross.entropy(paxcan_snmf_reps, K = 2))
+
+# Custom colour palette
+my.colors3 <- c("dodgerblue3", "green")
+
+# Extract Q-matrix for that run
+q_matrix2 <- Q(paxcan_snmf_reps, K = 2, run = best2)
+
+## Plot using LEA's barchart function with sample labels
+barchart(paxcan_snmf_reps, K = 2, run = best2,
+         border = NA, 
+         space = 0,
+         col = my.colors3,
+         xlab = "Individuals",
+         ylab = "Ancestry proportions",
+         main = "Ancestry matrix",
+         lab = TRUE,
+         sort.by.Q = TRUE) -> bp2         # arrange according structuring
+
+axis(1, at = 1:length(bp2$order), 
+      labels = bp2$order, las = 3, 
+      cex.axis = .4)
+
+# NO CLEAR SPLIT BETWEEN THE TWO DISJUNCTIONS
+```

@@ -1,0 +1,166 @@
+---
+title: "paxcan_IBD_AMOVA_analyses"
+author: "Isaac Buabeng"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+## load the necessary libraries
+```{r}
+library(adegenet)
+library(pegas)
+library(vcfR)
+library(dartR)
+library(poppr)
+```
+
+
+
+# load in the data
+```{r read in vcf with vcfR}
+vcf <- read.vcfR("C:/Users/User/Downloads/14pops_biallelic_snps_miss0.4_thin10.newID.mac1.maf0.01.ldkb1r0.8.vcf")
+```
+
+
+
+# convert the vcf object to a genlight object
+```{r}
+paxcan_gl <- vcfR2genlight(vcf)
+
+# Ensure all required metadata and flags exist
+paxcan_gl <- gl.compliance.check(paxcan_gl)   # adds missing flag skeletons
+
+# Remove (or confirm absence of) monomorphic loci and set the flag
+paxcan_gl <- gl.filter.monomorphs(paxcan_gl, verbose = 3)
+```
+
+
+
+# load in population data
+```{r}
+# cords for each individual
+all_cords <- read.csv("C:/Users/User/Downloads/coords_all.csv")
+
+# cords for each population
+cords <- read.csv("C:/Users/User/Downloads/coords.csv")
+```
+
+
+
+# assign population names
+```{r}
+pop(paxcan_gl) <- as.factor(all_cords$NAME_OF_POPULATION)
+
+popNames(paxcan_gl)
+```
+
+ 
+# generate arguments for mantel test for IBD
+```{r generate DGEO and DGEN}
+Dgen <- gl.dist.pop(paxcan_gl)
+#Dgen
+
+Dgeo <- dist(cords)
+#Dgeo
+```
+
+
+# perform the mantel test
+```{r}
+paxcan_ibd <- mantel.randtest(Dgen, Dgeo)
+
+plot(paxcan_ibd)
+
+#Monte-Carlo test
+#Call: mantel.randtest(m1 = Dgen, m2 = Dgeo)
+
+#Observation: 0.06225107 
+
+#Based on 999 replicates
+#Simulated p-value: 0.386 
+#Alternative hypothesis: greater 
+
+#     Std.Obs  Expectation     Variance 
+# 0.365965692 -0.001738827  0.030573287 
+  
+# there is no correlation between genetic distance and geographic distance
+
+
+
+# confirming with dartr
+paxcan_ibd1 <- gl.ibd(x = NULL, Dgen = Dgen, Dgeo = Dgeo, permutations = 999)
+
+#Analysis performed using provided genetic and Euclidean distance matrices. If a genlight object is provided, it is ignored.
+#  Coordinates used from: Dgeo provided. 
+#  Transformation of Dgeo: Dgeo 
+#  Genetic distance: Dgen provided 
+#  Tranformation of Dgen:  Dgen 
+
+#Mantel statistic based on Pearson's product-moment correlation 
+
+#Call:
+#vegan::mantel(xdis = Dgen, ydis = Dgeo, permutations = permutations,      na.rm = TRUE) 
+
+#Mantel statistic r: 0.06225 
+#      Significance: 0.402 
+
+#Upper quantiles of permutations (null model):
+#  90%   95% 97.5%   99% 
+#0.223 0.266 0.300 0.335 
+#Permutation: free
+#Number of permutations: 999
+#Completed: gl.ibd
+```
+
+
+
+# Perform Analyses of Molecular Variance (AMOVA)
+## assign the strata file for proper stratification analyses
+```{r}
+paxcan_strata <- read.csv("C:/Users/User/Downloads/strata_file.csv")
+
+paxcan_strata
+```
+
+
+
+# assign strata the genlight object
+```{r}
+strata(paxcan_gl) <- paxcan_strata
+
+paxcan_gl$strata
+```
+
+
+
+## perform amova on the population basis
+```{r}
+paxcan_amova_pop <- poppr.amova(paxcan_gl, hier= ~POPULATION)
+
+paxcan_amova_pop
+```
+
+
+
+## perform amova on a statewide level
+```{r}
+paxcan_amova_state <- poppr.amova(paxcan_gl, hier= ~LOCATION)
+
+paxcan_amova_state
+```
+
+
+
+## perform amova on discontinuity level
+```{r}
+paxcan_amova_region <- poppr.amova(paxcan_gl, hier= ~REGION)
+
+paxcan_amova_region
+```
+

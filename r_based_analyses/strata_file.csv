@@ -1,0 +1,166 @@
+INDIVIDUALS,POPULATION,STRATA,LOCATION,REGION,LATITUDE,LONGITUDE,STATE
+A01_PH-8,Powers Hollow,WV,WV,Central Appalachian Mountains,37.281763,-81.33027,WV
+A01_SC-01,Saint Clairesville,PA,PA,Central Appalachian Mountains,40.155985,-78.510515,PA
+A02_SC-09,Saint Clairesville,PA,PA,Central Appalachian Mountains,40.155985,-78.510515,PA
+A02_SELU-02,SELU,VA,VA,Central Appalachian Mountains,37.050129,-80.333659,VA
+A03_SELU-10,SELU,VA,VA,Central Appalachian Mountains,37.050129,-80.333659,VA
+A03_SP-02,Shawnee State Park,PA,PA,Central Appalachian Mountains,40.0341,-78.6343,PA
+A04_KM-8,Knobbs Mountain,VA,VA,Central Appalachian Mountains,38.47285,-78.174912,VA
+A04_SP-10,Shawnee State Park,PA,PA,Central Appalachian Mountains,40.0341,-78.6343,PA
+A05_BR-01,Blue Rock,WV,WV,Central Appalachian Mountains,38.555584,-79.131435,WV
+A05_TC-AC-3,Town Creek,MD,MD,Central Appalachian Mountains,39.58903,-78.56191,MD
+A06_BR-09,Blue Rock,WV,WV,Central Appalachian Mountains,38.555584,-79.131435,WV
+A07_BF-P1-05,Brush Creek Falls 1,WV,WV,Central Appalachian Mountains,37.281763,-81.33027,WV
+A07_SH-01,Smoke Hole,WV,WV,Central Appalachian Mountains,38.545451,-79.141416,WV
+A08_SH-09,Smoke Hole,WV,WV,Central Appalachian Mountains,38.545451,-79.141416,WV
+A09_PIN-01,The Pinnacle,VA,VA,Central Appalachian Mountains,36.575016,-82.3547,VA
+A09_SLR-1-C,Sweet Lilly Ridge,KY,KY,Interior Low Plateau,36.93829774,-84.56717353,KY
+A10_CC-1-F,Carter Caves,KY,KY,Interior Low Plateau,38.22027,-83.07409,KY
+A10_PIN-09,The Pinnacle,VA,VA,Central Appalachian Mountains,36.575016,-82.3547,VA
+A11_FCR-7,False Castle Rock,WV,WV,Central Appalachian Mountains,38.553138,-79.14252,WV
+A11_LE-06,Lutzville,PA,PA,Central Appalachian Mountains,40.00842745,-78.43550965,PA
+A12_FCR-15,False Castle Rock,WV,WV,Central Appalachian Mountains,38.553138,-79.14252,WV
+A12_LE-15,Lutzville,PA,PA,Central Appalachian Mountains,40.00842745,-78.43550965,PA
+B01_PH-9,Powers Hollow,WV,WV,Central Appalachian Mountains,37.281763,-81.33027,WV
+B01_SC-02,Saint Clairesville,PA,PA,Central Appalachian Mountains,40.155985,-78.510515,PA
+B02_SC-10,Saint Clairesville,PA,PA,Central Appalachian Mountains,40.155985,-78.510515,PA
+B02_SELU-03,SELU,VA,VA,Central Appalachian Mountains,37.050129,-80.333659,VA
+B03_KM-1,Knobbs Mountain,VA,VA,Central Appalachian Mountains,38.47285,-78.174912,VA
+B03_SP-03,Shawnee State Park,PA,PA,Central Appalachian Mountains,40.0341,-78.6343,PA
+B04_KM-9,Knobbs Mountain,VA,VA,Central Appalachian Mountains,38.47285,-78.174912,VA
+B04_SP-11,Shawnee State Park,PA,PA,Central Appalachian Mountains,40.0341,-78.6343,PA
+B05_BR-02,Blue Rock,WV,WV,Central Appalachian Mountains,38.555584,-79.131435,WV
+B05_TC-AC-4,Town Creek,MD,MD,Central Appalachian Mountains,39.58903,-78.56191,MD
+B06_BR-10,Blue Rock,WV,WV,Central Appalachian Mountains,38.555584,-79.131435,WV
+B07_SH-02,Smoke Hole,WV,WV,Central Appalachian Mountains,38.545451,-79.141416,WV
+B08_SH-10,Smoke Hole,WV,WV,Central Appalachian Mountains,38.545451,-79.141416,WV
+B09_PIN-02,The Pinnacle,VA,VA,Central Appalachian Mountains,36.575016,-82.3547,VA
+B09_SLR-1-E,Sweet Lilly Ridge,KY,KY,Interior Low Plateau,36.93829774,-84.56717353,KY
+B10_CC-1-9,Carter Caves,KY,KY,Interior Low Plateau,38.22027,-83.07409,KY
+B10_LE-01-1,Lutzville,PA,PA,Central Appalachian Mountains,40.00842745,-78.43550965,PA
+B11_FCR-8,False Castle Rock,WV,WV,Central Appalachian Mountains,38.553138,-79.14252,WV
+B11_LE-08,Lutzville,PA,PA,Central Appalachian Mountains,40.00842745,-78.43550965,PA
+B12_PH-1,Powers Hollow,WV,WV,Central Appalachian Mountains,37.281763,-81.33027,WV
+C01_PH-10,Powers Hollow,WV,WV,Central Appalachian Mountains,37.281763,-81.33027,WV
+C01_SC-03,Saint Clairesville,PA,PA,Central Appalachian Mountains,40.155985,-78.510515,PA
+C02_SC-11,Saint Clairesville,PA,PA,Central Appalachian Mountains,40.155985,-78.510515,PA
+C02_SELU-04,SELU,VA,VA,Central Appalachian Mountains,37.050129,-80.333659,VA
+C03_KM-2,Knobbs Mountain,VA,VA,Central Appalachian Mountains,38.47285,-78.174912,VA
+C03_SP-04,Shawnee State Park,PA,PA,Central Appalachian Mountains,40.0341,-78.6343,PA
+C04_KM-10,Knobbs Mountain,VA,VA,Central Appalachian Mountains,38.47285,-78.174912,VA
+C04_SP-12,Shawnee State Park,PA,PA,Central Appalachian Mountains,40.0341,-78.6343,PA
+C05_BR-03,Blue Rock,WV,WV,Central Appalachian Mountains,38.555584,-79.131435,WV
+C05_TC-AC-5,Town Creek,MD,MD,Central Appalachian Mountains,39.58903,-78.56191,MD
+C06_BR-11,Blue Rock,WV,WV,Central Appalachian Mountains,38.555584,-79.131435,WV
+C07_SH-03,Smoke Hole,WV,WV,Central Appalachian Mountains,38.545451,-79.141416,WV
+C08_SH-11,Smoke Hole,WV,WV,Central Appalachian Mountains,38.545451,-79.141416,WV
+C09_PIN-03,The Pinnacle,VA,VA,Central Appalachian Mountains,36.575016,-82.3547,VA
+C09_SLR-1-F,Sweet Lilly Ridge,KY,KY,Interior Low Plateau,36.93829774,-84.56717353,KY
+C10_FCR-1,False Castle Rock,WV,WV,Central Appalachian Mountains,38.553138,-79.14252,WV
+C10_LE-01-2,Lutzville,PA,PA,Central Appalachian Mountains,40.00842745,-78.43550965,PA
+C11_FCR-9,False Castle Rock,WV,WV,Central Appalachian Mountains,38.553138,-79.14252,WV
+C11_LE-09,Lutzville,PA,PA,Central Appalachian Mountains,40.00842745,-78.43550965,PA
+C12_PH-2,Powers Hollow,WV,WV,Central Appalachian Mountains,37.281763,-81.33027,WV
+D01_PH-11,Powers Hollow,WV,WV,Central Appalachian Mountains,37.281763,-81.33027,WV
+D01_SC-04,Saint Clairesville,PA,PA,Central Appalachian Mountains,40.155985,-78.510515,PA
+D02_SC-12,Saint Clairesville,PA,PA,Central Appalachian Mountains,40.155985,-78.510515,PA
+D02_SELU-05,SELU,VA,VA,Central Appalachian Mountains,37.050129,-80.333659,VA
+D03_KM-3,Knobbs Mountain,VA,VA,Central Appalachian Mountains,38.47285,-78.174912,VA
+D03_SP-05,Shawnee State Park,PA,PA,Central Appalachian Mountains,40.0341,-78.6343,PA
+D04_KM-11,Knobbs Mountain,VA,VA,Central Appalachian Mountains,38.47285,-78.174912,VA
+D04_SP-13,Shawnee State Park,PA,PA,Central Appalachian Mountains,40.0341,-78.6343,PA
+D05_BR-04,Blue Rock,WV,WV,Central Appalachian Mountains,38.555584,-79.131435,WV
+D05_TC-AC-6,Town Creek,MD,MD,Central Appalachian Mountains,39.58903,-78.56191,MD
+D06_BR-12,Blue Rock,WV,WV,Central Appalachian Mountains,38.555584,-79.131435,WV
+D07_SH-04,Smoke Hole,WV,WV,Central Appalachian Mountains,38.545451,-79.141416,WV
+D08_SH-12-A,Smoke Hole,WV,WV,Central Appalachian Mountains,38.545451,-79.141416,WV
+D09_CC-1-A,Carter Caves,KY,KY,Interior Low Plateau,38.22027,-83.07409,KY
+D09_PIN-04,The Pinnacle,VA,VA,Central Appalachian Mountains,36.575016,-82.3547,VA
+D10_FCR-2,False Castle Rock,WV,WV,Central Appalachian Mountains,38.553138,-79.14252,WV
+D10_LE-01-3,Lutzville,PA,PA,Central Appalachian Mountains,40.00842745,-78.43550965,PA
+D11_FCR-10,False Castle Rock,WV,WV,Central Appalachian Mountains,38.553138,-79.14252,WV
+D11_LE-10,Lutzville,PA,PA,Central Appalachian Mountains,40.00842745,-78.43550965,PA
+D12_PH-3,Powers Hollow,WV,WV,Central Appalachian Mountains,37.281763,-81.33027,WV
+E01_PH-12,Powers Hollow,WV,WV,Central Appalachian Mountains,37.281763,-81.33027,WV
+E01_SC-05,Saint Clairesville,PA,PA,Central Appalachian Mountains,40.155985,-78.510515,PA
+E02_SC-13,Saint Clairesville,PA,PA,Central Appalachian Mountains,40.155985,-78.510515,PA
+E02_SELU-06,SELU,VA,VA,Central Appalachian Mountains,37.050129,-80.333659,VA
+E03_KM-4,Knobbs Mountain,VA,VA,Central Appalachian Mountains,38.47285,-78.174912,VA
+E03_SP-06,Shawnee State Park,PA,PA,Central Appalachian Mountains,40.0341,-78.6343,PA
+E04_KM-12,Knobbs Mountain,VA,VA,Central Appalachian Mountains,38.47285,-78.174912,VA
+E04_SP-14,Shawnee State Park,PA,PA,Central Appalachian Mountains,40.0341,-78.6343,PA
+E05_BR-05,Blue Rock,WV,WV,Central Appalachian Mountains,38.555584,-79.131435,WV
+E05_TC-AC-7,Town Creek,MD,MD,Central Appalachian Mountains,39.58903,-78.56191,MD
+E06_BF-P1-01,Brush Creek Falls 1,WV,WV,Central Appalachian Mountains,37.281763,-81.33027,WV
+E06_BR-13,Blue Rock,WV,WV,Central Appalachian Mountains,38.555584,-79.131435,WV
+E07_SH-05,Smoke Hole,WV,WV,Central Appalachian Mountains,38.545451,-79.141416,WV
+E08_SH-12-B,Smoke Hole,WV,WV,Central Appalachian Mountains,38.545451,-79.141416,WV
+E09_CC-1-B,Carter Caves,KY,KY,Interior Low Plateau,38.22027,-83.07409,KY
+E09_PIN-05,The Pinnacle,VA,VA,Central Appalachian Mountains,36.575016,-82.3547,VA
+E10_FCR-3,False Castle Rock,WV,WV,Central Appalachian Mountains,38.553138,-79.14252,WV
+E10_LE-02,Lutzville,PA,PA,Central Appalachian Mountains,40.00842745,-78.43550965,PA
+E11_FCR-11,False Castle Rock,WV,WV,Central Appalachian Mountains,38.553138,-79.14252,WV
+E11_LE-11,Lutzville,PA,PA,Central Appalachian Mountains,40.00842745,-78.43550965,PA
+E12_PH-4,Powers Hollow,WV,WV,Central Appalachian Mountains,37.281763,-81.33027,WV
+F01_PH-13,Powers Hollow,WV,WV,Central Appalachian Mountains,37.281763,-81.33027,WV
+F01_SC-06,Saint Clairesville,PA,PA,Central Appalachian Mountains,40.155985,-78.510515,PA
+F02_SC-14,Saint Clairesville,PA,PA,Central Appalachian Mountains,40.155985,-78.510515,PA
+F02_SELU-07,SELU,VA,VA,Central Appalachian Mountains,37.050129,-80.333659,VA
+F03_KM-5,Knobbs Mountain,VA,VA,Central Appalachian Mountains,38.47285,-78.174912,VA
+F03_SP-07,Shawnee State Park,PA,PA,Central Appalachian Mountains,40.0341,-78.6343,PA
+F04_KM-13,Knobbs Mountain,VA,VA,Central Appalachian Mountains,38.47285,-78.174912,VA
+F04_SP-15,Shawnee State Park,PA,PA,Central Appalachian Mountains,40.0341,-78.6343,PA
+F05_BR-06,Blue Rock,WV,WV,Central Appalachian Mountains,38.555584,-79.131435,WV
+F05_TC-AC-8,Town Creek,MD,MD,Central Appalachian Mountains,39.58903,-78.56191,MD
+F06_BF-P1-02,Brush Creek Falls 1,WV,WV,Central Appalachian Mountains,37.281763,-81.33027,WV
+F06_BR-14,Blue Rock,WV,WV,Central Appalachian Mountains,38.555584,-79.131435,WV
+F07_SH-06,Smoke Hole,WV,WV,Central Appalachian Mountains,38.545451,-79.141416,WV
+F08_SH-13,Smoke Hole,WV,WV,Central Appalachian Mountains,38.545451,-79.141416,WV
+F09_CC-1-C,Carter Caves,KY,KY,Interior Low Plateau,38.22027,-83.07409,KY
+F09_PIN-06,The Pinnacle,VA,VA,Central Appalachian Mountains,36.575016,-82.3547,VA
+F10_FCR-4,False Castle Rock,WV,WV,Central Appalachian Mountains,38.553138,-79.14252,WV
+F10_LE-03,Lutzville,PA,PA,Central Appalachian Mountains,40.00842745,-78.43550965,PA
+F11_FCR-12,False Castle Rock,WV,WV,Central Appalachian Mountains,38.553138,-79.14252,WV
+F11_LE-12,Lutzville,PA,PA,Central Appalachian Mountains,40.00842745,-78.43550965,PA
+F12_PH-5,Powers Hollow,WV,WV,Central Appalachian Mountains,37.281763,-81.33027,WV
+G01_PH-14,Powers Hollow,WV,WV,Central Appalachian Mountains,37.281763,-81.33027,WV
+G01_SC-07,Saint Clairesville,PA,PA,Central Appalachian Mountains,40.155985,-78.510515,PA
+G02_SC-15,Saint Clairesville,PA,PA,Central Appalachian Mountains,40.155985,-78.510515,PA
+G02_SELU-08,SELU,VA,VA,Central Appalachian Mountains,37.050129,-80.333659,VA
+G03_KM-6,Knobbs Mountain,VA,VA,Central Appalachian Mountains,38.47285,-78.174912,VA
+G03_SP-08,Shawnee State Park,PA,PA,Central Appalachian Mountains,40.0341,-78.6343,PA
+G04_KM-14,Knobbs Mountain,VA,VA,Central Appalachian Mountains,38.47285,-78.174912,VA
+G04_TC-AC-1,Town Creek,MD,MD,Central Appalachian Mountains,39.58903,-78.56191,MD
+G05_BR-07,Blue Rock,WV,WV,Central Appalachian Mountains,38.555584,-79.131435,WV
+G06_BF-P1-03,Brush Creek Falls 1,WV,WV,Central Appalachian Mountains,37.281763,-81.33027,WV
+G06_BR-15,Blue Rock,WV,WV,Central Appalachian Mountains,38.555584,-79.131435,WV
+G07_SH-07,Smoke Hole,WV,WV,Central Appalachian Mountains,38.545451,-79.141416,WV
+G08_SH-14,Smoke Hole,WV,WV,Central Appalachian Mountains,38.545451,-79.141416,WV
+G08_SLR-1-A,Sweet Lilly Ridge,KY,KY,Interior Low Plateau,36.93829774,-84.56717353,KY
+G09_CC-1-D,Carter Caves,KY,KY,Interior Low Plateau,38.22027,-83.07409,KY
+G09_PIN-07,The Pinnacle,VA,VA,Central Appalachian Mountains,36.575016,-82.3547,VA
+G10_FCR-5,False Castle Rock,WV,WV,Central Appalachian Mountains,38.553138,-79.14252,WV
+G10_LE-04,Lutzville,PA,PA,Central Appalachian Mountains,40.00842745,-78.43550965,PA
+G11_FCR-13,False Castle Rock,WV,WV,Central Appalachian Mountains,38.553138,-79.14252,WV
+G11_LE-13,Lutzville,PA,PA,Central Appalachian Mountains,40.00842745,-78.43550965,PA
+G12_PH-6,Powers Hollow,WV,WV,Central Appalachian Mountains,37.281763,-81.33027,WV
+H01_SC-08,Saint Clairesville,PA,PA,Central Appalachian Mountains,40.155985,-78.510515,PA
+H01_SELU-01,SELU,VA,VA,Central Appalachian Mountains,37.050129,-80.333659,VA
+H02_SELU-09,SELU,VA,VA,Central Appalachian Mountains,37.050129,-80.333659,VA
+H02_SP-01,Shawnee State Park,PA,PA,Central Appalachian Mountains,40.0341,-78.6343,PA
+H03_KM-7,Knobbs Mountain,VA,VA,Central Appalachian Mountains,38.47285,-78.174912,VA
+H03_SP-09,Shawnee State Park,PA,PA,Central Appalachian Mountains,40.0341,-78.6343,PA
+H04_KM-15,Knobbs Mountain,VA,VA,Central Appalachian Mountains,38.47285,-78.174912,VA
+H04_TC-AC-2,Town Creek,MD,MD,Central Appalachian Mountains,39.58903,-78.56191,MD
+H05_BR-08,Blue Rock,WV,WV,Central Appalachian Mountains,38.555584,-79.131435,WV
+H06_BF-P1-04,Brush Creek Falls 1,WV,WV,Central Appalachian Mountains,37.281763,-81.33027,WV
+H06_BR-16,Blue Rock,WV,WV,Central Appalachian Mountains,38.555584,-79.131435,WV
+H07_SH-08,Smoke Hole,WV,WV,Central Appalachian Mountains,38.545451,-79.141416,WV
+H08_SH-15,Smoke Hole,WV,WV,Central Appalachian Mountains,38.545451,-79.141416,WV
+H08_SLR-1-B,Sweet Lilly Ridge,KY,KY,Interior Low Plateau,36.93829774,-84.56717353,KY
+H09_CC-1-E,Carter Caves,KY,KY,Interior Low Plateau,38.22027,-83.07409,KY
+H09_PIN-08,The Pinnacle,VA,VA,Central Appalachian Mountains,36.575016,-82.3547,VA
+H10_FCR-6,False Castle Rock,WV,WV,Central Appalachian Mountains,38.553138,-79.14252,WV
+H10_LE-05,Lutzville,PA,PA,Central Appalachian Mountains,40.00842745,-78.43550965,PA
+H11_FCR-14,False Castle Rock,WV,WV,Central Appalachian Mountains,38.553138,-79.14252,WV
+H12_PH-7,Powers Hollow,WV,WV,Central Appalachian Mountains,37.281763,-81.33027,WV
