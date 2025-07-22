@@ -9,22 +9,120 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+## load the necessary libraries
+```{r}
+library(adegenet)
+library(pegas)
+library(vcfR)
+library(ape)
+library(dartR)
+library(ggplot2)
+library(tidyverse)
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+# load in and convert the data into a genlight object
+```{r}
+vcf <- read.vcfR("C:/Users/User/Documents/paxcan_project/14pops_biallelic_snps_miss0.4_thin10.newID.mac1.maf0.01.ldkb1r0.8.vcf")
+
+# convert the vcf file into a genlight object
+paxcan_gl <- vcfR2genlight(vcf)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+# Filter loci and individuals
+```{r}
+# Ensure all required metadata and flags exist
+paxcan_gl <- gl.compliance.check(paxcan_gl)   # adds missing flag skeletons
+
+# Remove (or confirm absence of) monomorphic loci and set the flag
+paxcan_gl <- gl.filter.monomorphs(paxcan_gl, verbose = 3)
+```
+
+
+
+# load in population data
+```{r}
+# cords for each individual
+all_cords <- read.csv("coords_all.csv")
+
+# cords for each population
+cords <- read.csv("coords.csv")
+```
+
+
+
+# update the genlight object with population information
+```{r}
+pop(paxcan_gl) <- all_cords$NAME_OF_POPULATION[match(indNames(paxcan_gl), all_cords$INDIVIDUALS)]
+```
+
+
+# Summarize data quality and diversity
+```{r}
+glSum(paxcan_gl)    # numbers of loci & indivs
+glNA(paxcan_gl)     # missingness per sample
+glMean(paxcan_gl)   # allele frequencies per locus
+glVar(paxcan_gl)    # locus variances
+```
+
+
+
+# DAPC ANALYSES
+# find the number of genetic clusters
+```{r}
+grp <- find.clusters(paxcan_gl, max.n.clust=14, n.iter= 100)
+
+grp
+
+# I chose k=8 and 150 PCs retained 
+```
+
+
+
+# run dapc1
+```{r}
+dapc1 <- dapc(paxcan_gl, grp$grp)
+
+dapc1$assign
+
+dapc1$posterior
+
+loadingplot(dapc1$var.contr)
+
+summary(dapc1)
+
+assignplot(dapc1)
+
+save(dapc1, file="dapc1.RData")
+
+
+
+my.colors1 <- c("dodgerblue3", "green", "burlywood4", "orange", "yellow",
+                "darkviolet", "black", "tomato", "gold", "chocolate", 
+                "plum", "steelblue", "forestgreen", "turquoise")
+
+scatter(dapc1, 
+        posi.da="topright", 
+        bg="white",
+        pch=17:22, 
+        cstar=0, 
+        col=my.colors1, 
+        scree.pca=TRUE,
+posi.pca="bottomright")
+#dev.off()
+
+pdf("DAPC1.pdf", width = 4, height = 4)
+```
+
+
+
+# dapc 2
+```{r}
+
+```
+
