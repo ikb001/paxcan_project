@@ -1,0 +1,200 @@
+---
+title: "paxcan_basic_stats_analyses"
+author: "Isaac Buabeng"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## load the necessary libraires
+```{r}
+library(hierfstat)
+library(gaston)
+library(vcfR)
+library(reshape2)
+library(pegas)
+library(gt)
+library(cowplot)
+library(ggplot2)
+library(tidyverse)
+```
+
+
+
+# load in the data
+```{r}
+vcf <- read.vcfR("14pops_biallelic_snps_miss0.4_thin10.newID.mac1.maf0.01.ldkb1r0.8.vcf")
+
+
+# load in population data
+# cords for each individual
+all_cords <- read.csv("coords_all.csv")
+
+# cords for each population
+cords <- read.csv("coords.csv")
+```
+
+
+# calculate basic fstats
+## convert the vcf file into a genind object for hierfstsat
+```{r vcf2genind}
+paxcan_genind <- vcfR2genind(vcf)
+```
+
+
+
+## convert the vcf object to a genlight object for dartR
+```{r}
+paxcan_gl <- vcfR2genlight(vcf)
+
+# Ensure all required metadata and flags exist
+paxcan_gl <- gl.compliance.check(paxcan_gl)   # adds missing flag skeletons
+
+# Remove (or confirm absence of) monomorphic loci and set the flag
+paxcan_gl <- gl.filter.monomorphs(paxcan_gl, verbose = 3)
+
+# assign population names
+pop(paxcan_gl) <- as.factor(all_cords$NAME_OF_POPULATION)
+
+popNames(paxcan_gl)
+```
+
+
+
+## assign population information
+```{r}
+pop(paxcan_genind) <- as.factor(all_cords$NAME_OF_POPULATION)
+
+popNames(paxcan_genind)
+# perfect!
+```
+
+
+
+## convert the genind object into hierfstat format
+```{r}
+paxcan_hfstat <- genind2hierfstat(paxcan_genind, pop=NULL)
+```
+
+
+
+## calculate the basic fstats with hierfstat
+```{r}
+basicstat <- basic.stats(paxcan_hfstat, diploid=TRUE, digits=3)
+
+# inspect the results
+basicstat$overall
+
+# save the results
+save(basicstat, file="basicstat.RData")
+```
+
+
+## confirm with dartR
+```{r}
+gl.basic.stats(paxcan_gl)
+# very similar to what we saw in hierfstat
+```
+
+
+
+## save the results into a dataframe
+```{r}
+overall_basic_stats <- as.data.frame(basicstat$overall)
+
+# examine the table
+overall_basic_stats
+```
+
+
+
+## Get bootstrap confidence values for Fis
+```{r}
+boot <- boot.ppfis(paxcan_hfstat, nboot=1000)
+boot5 <-boot.ppfis(paxcan_hfstat, nboot=1000, quant=0.5)
+
+boot
+boot5
+```
+
+
+
+## Make a table for our bootstrapped observed and expected heterozygosity values
+```{r}
+# extract population names for constructing the dataframe
+pop_order <- cords$NAME_OF_POPULATION
+
+# use the names of the populations to rearrange the heterozygosity results
+colnames(basicstat$Ho) <- pop_order
+```
+
+
+
+## construct the table for fis values
+```{r}
+Ho <- colMeans(basicstat$Ho,na.rm=T)
+He <- colMeans(basicstat$Hs,na.rm=T)
+Fis <- boot5$fis.ci$ll
+new_popgen_stats <- cbind(Ho,He,Fis,boot$fis.ci)
+
+new_popgen_stats
+```
+
+
+
+## save the resulst
+```{r}
+popgen_stats_noMD.csv <-write.table(new_popgen_stats, sep=",", dec=".", row.names=TRUE, col.names=TRUE)
+
+save(new_popgen_stats, file="new_popgen_stats")
+```
+
+
+
+## calculate fst 
+```{r}
+paxcan.fst.mat <- genet.dist(paxcan_hfstat, method = "WC84")
+
+gindF.fst.mat.tri <- as.matrix(paxcan.fst.mat)
+
+colnames(gindF.fst.mat.tri) <- pop_order
+
+rownames(gindF.fst.mat.tri) <- pop_order
+
+write.table(gindF.fst.mat.tri, file="paxcanFstWC84.pwfst", row.names=T,col.names=T)
+```
+
+
+
+## construct a table for the results
+```{r}
+melted <- melt(gindF.fst.mat.tri, na.rm = TRUE)
+```
+
+
+## look at results
+```{r}
+summary(melted$value)
+```
+
+
+
+## pairwise fst plot
+```{r}
+combined <- ggplot(data = melted, aes(Var2, Var1, fill = value))+ 
+  geom_tile(color = "white")+ 
+  scale_fill_gradient(low = "white", high = "red", name="FST")  +
+  ggtitle(expression(atop("Pairwise FST, WC (1984), Combined", atop(italic("N = 118"), ""))))+
+  labs( x = "Sampling Site", y = "Sampling Site") + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, size = 12, hjust = 1),axis.text.y = element_text(size = 13)) + 
+  theme_classic()+
+  coord_fixed()
+combined
+```
+
+
+

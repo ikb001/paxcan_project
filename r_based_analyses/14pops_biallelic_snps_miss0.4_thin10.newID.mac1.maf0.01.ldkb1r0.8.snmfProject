@@ -1,5 +1,6 @@
 new("snmfProject", snmfProject.file = "14pops_biallelic_snps_miss0.4_thin10.newID.mac1.maf0.01.ldkb1r0.8.snmfProject", 
-    projDir = "C:/Users/User/Downloads/", snmfDir = "14pops_biallelic_snps_miss0.4_thin10.newID.mac1.maf0.01.ldkb1r0.8.snmf/", 
+    projDir = "C:/Users/User/Documents/paxcan_project/r_based_analyses/", 
+    snmfDir = "14pops_biallelic_snps_miss0.4_thin10.newID.mac1.maf0.01.ldkb1r0.8.snmf/", 
     input.file = "14pops_biallelic_snps_miss0.4_thin10.newID.mac1.maf0.01.ldkb1r0.8.geno", 
     runs = list(), K = c(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 
     10L, 11L, 12L, 13L, 14L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 
@@ -152,5 +153,5 @@ new("snmfProject", snmfProject.file = "14pops_biallelic_snps_miss0.4_thin10.newI
     "K12/run10/14pops_biallelic_snps_miss0.4_thin10.newID.mac1.maf0.01.ldkb1r0.8_r10.12.snmfClass", 
     "K13/run10/14pops_biallelic_snps_miss0.4_thin10.newID.mac1.maf0.01.ldkb1r0.8_r10.13.snmfClass", 
     "K14/run10/14pops_biallelic_snps_miss0.4_thin10.newID.mac1.maf0.01.ldkb1r0.8_r10.14.snmfClass"
-    ), n = 165L, L = 21696L, creationTime = structure(1753131626.88336, class = c("POSIXct", 
+    ), n = 165L, L = 21696L, creationTime = structure(1753215299.52665, class = c("POSIXct", 
     "POSIXt")))

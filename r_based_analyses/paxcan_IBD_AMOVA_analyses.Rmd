@@ -24,7 +24,7 @@ library(poppr)
 
 # load in the data
 ```{r read in vcf with vcfR}
-vcf <- read.vcfR("C:/Users/User/Downloads/14pops_biallelic_snps_miss0.4_thin10.newID.mac1.maf0.01.ldkb1r0.8.vcf")
+vcf <- read.vcfR("14pops_biallelic_snps_miss0.4_thin10.newID.mac1.maf0.01.ldkb1r0.8.vcf")
 ```
 
 
@@ -45,10 +45,10 @@ paxcan_gl <- gl.filter.monomorphs(paxcan_gl, verbose = 3)
 # load in population data
 ```{r}
 # cords for each individual
-all_cords <- read.csv("C:/Users/User/Downloads/coords_all.csv")
+all_cords <- read.csv("coords_all.csv")
 
 # cords for each population
-cords <- read.csv("C:/Users/User/Downloads/coords.csv")
+cords <- read.csv("coords.csv")
 ```
 
 
@@ -123,7 +123,7 @@ paxcan_ibd1 <- gl.ibd(x = NULL, Dgen = Dgen, Dgeo = Dgeo, permutations = 999)
 # Perform Analyses of Molecular Variance (AMOVA)
 ## assign the strata file for proper stratification analyses
 ```{r}
-paxcan_strata <- read.csv("C:/Users/User/Downloads/strata_file.csv")
+paxcan_strata <- read.csv("strata_file.csv")
 
 paxcan_strata
 ```
