@@ -18,6 +18,7 @@ library(vcfR)
 library(reshape2)
 library(pegas)
 library(gt)
+library(dartR)
 library(cowplot)
 library(ggplot2)
 library(tidyverse)
@@ -159,6 +160,7 @@ save(new_popgen_stats, file="new_popgen_stats")
 ```{r}
 paxcan.fst.mat <- genet.dist(paxcan_hfstat, method = "WC84")
 
+# make the results into a matrix with column and rownames as population names
 gindF.fst.mat.tri <- as.matrix(paxcan.fst.mat)
 
 colnames(gindF.fst.mat.tri) <- pop_order
@@ -183,18 +185,340 @@ summary(melted$value)
 
 
 
-## pairwise fst plot
+## pairwise fst plot based on disjunctions
 ```{r}
-combined <- ggplot(data = melted, aes(Var2, Var1, fill = value))+ 
-  geom_tile(color = "white")+ 
-  scale_fill_gradient(low = "white", high = "red", name="FST")  +
-  ggtitle(expression(atop("Pairwise FST, WC (1984), Combined", atop(italic("N = 118"), ""))))+
-  labs( x = "Sampling Site", y = "Sampling Site") + 
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, size = 12, hjust = 1),axis.text.y = element_text(size = 13)) + 
-  theme_classic()+
+# Calculate mean FST values and create ordered site list
+mean_fst_by_pop <- melted %>%
+  group_by(Var1) %>%
+  summarise(mean_fst = mean(value, na.rm = TRUE)) %>%
+  arrange(mean_fst)
+
+ordered_sites <- mean_fst_by_pop$Var1
+
+# Define populations by division
+central_populations <- c(
+  "Saint Clairesville", "Shawnee State Park", "Lutzville", 
+  "Town Creek", "False Castle Rock", "Bluerock", "SELU", 
+  "Smoke Hole", "The Pinnacle", "Brush Creek Falls1", 
+  "Powers Hollow", "Knobbs Mountain"
+)
+
+cumberland_populations <- c("Carter Caves", "Sweet Lilly Ridge")
+
+# Order each division by mean FST values
+central_ordered <- ordered_sites[ordered_sites %in% central_populations]
+cumberland_ordered <- ordered_sites[ordered_sites %in% cumberland_populations]
+
+# Create final site order
+site_order <- c(central_ordered, cumberland_ordered)
+
+# Set factor levels
+melted$Var1 <- factor(melted$Var1, levels = site_order)
+melted$Var2 <- factor(melted$Var2, levels = site_order)
+
+# Create heatmap 
+combined <- ggplot(melted, aes(Var2, Var1, fill = value)) + 
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "white", high = "red", name = "FST") +
+  ggtitle(expression(atop("Pairwise FST, WC (1984), Combined", atop(italic("N = 165"), "")))) +
+  labs(x = "Sampling Site", y = "Sampling Site") +
+  theme_classic() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 12),
+    axis.text.y = element_text(size = 13),
+    plot.title = element_text(size = 14, face = "bold")
+  ) +
   coord_fixed()
+
+# Add division lines (adjust based on new ordering)
+division_line_position <- length(central_ordered) + 0.5
+
+combined <- combined +
+  geom_vline(xintercept = division_line_position, linewidth = 1.2) +
+  geom_hline(yintercept = division_line_position, linewidth = 1.2)
+
+# Add group labels
+# Cumulative block sizes ---
+cum_central <- length(central_ordered) # last row of Central Appalachian block
+cum_total   <- length(central_ordered) +               
+               length(cumberland_ordered) # last row overall
+
+# Division labels aligned to top edge 
+combined <- combined +
+  annotate("text",
+           x        = 0.3,            # small left offset inside the facet
+           y        = cum_central,    # top edge of first block
+           label    = "Central Appalachian\nMountains",
+           hjust    = 0,              # left-align
+           vjust    = 1,              # anchor to top of the row
+           angle    = 0,
+           size     = 4.5,
+           fontface = "bold") +
+  annotate("text",
+           x        = 0.3,
+           y        = cum_total,      # top edge of second block (= last row)
+           label    = "Cumberland–Allegheny\nInterior Plateaus",
+           hjust    = 0,
+           vjust    = 1,
+           angle    = 0,
+           size     = 4.5,
+           fontface = "bold") +
+  theme(plot.margin = margin(t = 10, r = 10, b = 10, l = 50))
+
 combined
 ```
 
 
 
+
+## pairwise fst plot based on states
+```{r}
+### Compute a per-population mean FST
+mean_fst <- melted %>%                         # melted has Var1, Var2, value
+  group_by(Var1) %>%                           # one row per focal population
+  summarise(mean_fst = mean(value, na.rm = TRUE)) %>% 
+  arrange(mean_fst)                            # ascending order
+
+ordered_all <- mean_fst$Var1                  # vector of names ranked by FST
+
+### Define the five state groupings
+pa   <- c("Saint Clairesville", "Shawnee State Park", "Lutzville")
+md   <- c("Town Creek")
+wv   <- c("False Castle Rock", "Bluerock", "Smoke Hole",
+          "Brush Creek Falls1", "Powers Hollow")
+va   <- c("The Pinnacle", "SELU", "Knobbs Mountain")
+ky   <- c("Carter Caves", "Sweet Lilly Ridge")
+
+### Re-order each state block by the ranked list
+pa_order <- ordered_all[ordered_all %in% pa]
+md_order <- ordered_all[ordered_all %in% md]
+wv_order <- ordered_all[ordered_all %in% wv]
+va_order <- ordered_all[ordered_all %in% va]
+ky_order <- ordered_all[ordered_all %in% ky]
+
+site_order1 <- c(pa_order, md_order, wv_order, va_order, ky_order)
+
+### Set factor levels with the new order
+melted$Var1 <- factor(melted$Var1, levels = site_order1)
+melted$Var2 <- factor(melted$Var2, levels = site_order1)
+
+## Relabel the states (the y coordinates are now midpoints of each block)
+combined1 <- ggplot(melted, aes(Var2, Var1, fill = value)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "white", high = "red", name = "FST") +
+  ggtitle(expression(atop("Pairwise FST, WC (1984), Combined",
+                          atop(italic("N = 165"), "")))) +
+  labs(x = "Sampling Site", y = "Sampling Site") +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 12),
+        axis.text.y = element_text(size = 13),
+        plot.title  = element_text(size = 14, face = "bold"),
+        plot.margin = margin(t = 10, r = 10, b = 10, l = 60)) +
+  coord_fixed()
+
+## Add state separators at the new boundaries
+breaks <- c(length(pa_order),
+            length(pa_order)+length(md_order),
+            length(pa_order)+length(md_order)+length(wv_order),
+            length(pa_order)+length(md_order)+length(wv_order)+length(va_order)) + 0.5
+
+combined1 <- combined1 +
+  geom_vline(xintercept = breaks, linewidth = 1.2) +
+  geom_hline(yintercept = breaks, linewidth = 1.2)
+
+## Position labels at the TOP EDGE of each state block
+combined1 <- combined1 +
+  annotate("text", x = 0.2, y = length(pa_order),                                              label = "Pennsylvania",   fontface = "bold", size = 4.5, hjust = 0, vjust = 1) +
+  annotate("text", x = 0.2, y = length(pa_order) + length(md_order),                          label = "Maryland",       fontface = "bold", size = 4.5, hjust = 0, vjust = 1) +
+  annotate("text", x = 0.2, y = length(pa_order) + length(md_order) + length(wv_order),       label = "West Virginia",  fontface = "bold", size = 4.5, hjust = 0, vjust = 1) +
+  annotate("text", x = 0.2, y = length(pa_order) + length(md_order) + length(wv_order) + length(va_order), label = "Virginia", fontface = "bold", size = 4.5, hjust = 0, vjust = 1) +
+  annotate("text", x = 0.2, y = length(site_order1),                                          label = "Kentucky",       fontface = "bold", size = 4.5, hjust = 0, vjust = 1)
+
+combined1
+```
+
+
+
+## extract numbers for hetrozygosity
+```{r}
+paxcanHet <- summary(paxcan_genind)
+paxcanHet
+
+save(paxcanHet,file="paxcanHet.Rdata")
+
+names(paxcanHet)
+```
+
+
+## extract plots for observed and expect heterozygosity at each locus
+```{r}
+plot(paxcanHet$Hobs, xlab="Locus number", ylab="Observed heterozygosity", main="Observed heterozygosity per locus")
+
+plot(paxcanHet$Hobs, paxcanHet$Hexp, xlab="Observed heterozygosity", ylab="Expected heterozygosity", main="He as a function of Ho, per locus")
+
+
+tiff(filename="paxcan_Hob_plot.tiff", width = 4, height = 4, units = 'in', res = 300)
+
+tiff(filename="paxcan_Ho_He_plot.tiff", width = 4, height = 4, units = 'in', res = 300)
+
+dev.off()
+```
+
+
+
+# Perform Barlett Test to test for the homogeneity of variances
+```{r}
+bartlett.test(list(paxcanHet$Hexp, paxcanHet$Hobs))
+
+# so there's observed heterozygosity is higher and statistically significant at that.
+```
+
+
+## Now, lets separate the pops and repeat Bartlett for each.
+```{r}
+temp_seppop <- seppop(paxcan_genind)
+```
+
+
+## Let's make a list of the populations
+```{r}
+PH <- temp_seppop$`Powers Hollow`
+SC <- temp_seppop$`Saint Clairesville`
+SELU <- temp_seppop$SELU
+SP <- temp_seppop$`Shawnee State Park`
+KM <- temp_seppop$`Knobbs Mountain`
+BR <- temp_seppop$`Blue Rock`
+BF <- temp_seppop$`Brush Creek Falls 1`
+TC <- temp_seppop$`Town Creek`
+SH <- temp_seppop$`Smoke Hole`
+PIN <- temp_seppop$`The Pinnacle`
+SLR <- temp_seppop$`Sweet Lilly Ridge`
+CC <- temp_seppop$`Carter Caves`
+FCR <- temp_seppop$`False Castle Rock`
+LE <- temp_seppop$Lutzville
+```
+
+
+
+## Run a bartlett test for each population
+### PH
+```{r}
+PHhet <- summary(PH)
+
+bartlett.test(list(PHhet$Hexp, PHhet$Hobs))
+```
+
+
+### SELU
+```{r}
+SELUhet <- summary(SELU)
+
+bartlett.test(list(SELUhet$Hexp, SELUhet$Hobs))
+```
+
+
+
+### SC
+```{r}
+SChet <- summary(SC)
+
+bartlett.test(list(SChet$Hexp, SChet$Hobs))
+```
+
+
+
+### SP
+```{r}
+SPhet <- summary(SP)
+
+bartlett.test(list(SPhet$Hexp, SPhet$Hobs))
+```
+
+
+
+### KM
+```{r}
+KMhet <- summary(KM)
+
+bartlett.test(list(KMhet$Hexp, KMhet$Hobs))
+```
+
+
+
+### BR
+```{r}
+BRhet <- summary(BR)
+
+bartlett.test(list(BRhet$Hexp, BRhet$Hobs))
+```
+
+
+
+### BF
+```{r}
+BFhet <- summary(BF)
+
+bartlett.test(list(BFhet$Hexp, BFhet$Hobs))
+```
+
+
+
+### TC
+```{r}
+TChet <- summary(TC)
+
+bartlett.test(list(TChet$Hexp, TChet$Hobs))
+```
+
+
+
+### SH
+```{r}
+SHhet <- summary(SH)
+
+bartlett.test(list(SHhet$Hexp, SHhet$Hobs))
+```
+
+
+
+### PIN
+```{r}
+PINhet <- summary(PIN)
+
+bartlett.test(list(PINhet$Hexp, PINhet$Hobs))
+```
+
+
+
+### SLR
+```{r}
+SLRhet <- summary(SLR)
+
+bartlett.test(list(SLRhet$Hexp, SLRhet$Hobs))
+```
+
+
+### CC
+```{r}
+CChet <- summary(CC)
+
+bartlett.test(list(CChet$Hexp, CChet$Hobs))
+```
+
+
+
+### FCR
+```{r}
+FCRhet <- summary(FCR)
+
+bartlett.test(list(FCRhet$Hexp, FCRhet$Hobs))
+```
+
+
+
+### LE
+```{r}
+LEhet <- summary(LE)
+
+bartlett.test(list(LEhet$Hexp,LEhet$Hobs))
+```

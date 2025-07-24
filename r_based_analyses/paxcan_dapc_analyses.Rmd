@@ -253,12 +253,7 @@ p
 
 
 
-# find the number of genetic clusters (we know from the snmf analyses that the optimal K=11)
-```{r}
-grp <- find.clusters(paxcan_gl, max.n.clust=14, n.iter= 100)
 
-grp
-```
 
 
 

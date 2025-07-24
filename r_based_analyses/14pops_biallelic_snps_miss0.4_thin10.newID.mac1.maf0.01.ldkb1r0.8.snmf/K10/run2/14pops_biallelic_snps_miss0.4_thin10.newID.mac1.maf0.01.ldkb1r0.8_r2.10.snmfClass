@@ -1,6 +1,6 @@
 new("snmfClass", directory = "K10/run2/", snmfClass.file = "14pops_biallelic_snps_miss0.4_thin10.newID.mac1.maf0.01.ldkb1r0.8_r2.10.snmfClass", 
-    K = 10L, run = 2L, CPU = 1L, seed = 1111456939L, alpha = 10, 
+    K = 10L, run = 2L, CPU = 1L, seed = 667440305L, alpha = 10, 
     percentage = 0.05, I = 0L, iterations = 1000L, entropy = TRUE, 
-    tolerance = 1e-05, crossEntropy = 0.303624677459855, ploidy = 2L, 
+    tolerance = 1e-05, crossEntropy = 0.305843266888106, ploidy = 2L, 
     Q.input.file = "", Q.output.file = "14pops_biallelic_snps_miss0.4_thin10.newID.mac1.maf0.01.ldkb1r0.8_r2.10.Q", 
     G.output.file = "14pops_biallelic_snps_miss0.4_thin10.newID.mac1.maf0.01.ldkb1r0.8_r2.10.G")
