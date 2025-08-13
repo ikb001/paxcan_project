@@ -1,0 +1,91 @@
+---
+title: "paxcan_clonality_analyses"
+author: "Isaac Buabeng"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+## load the necessary libraries
+```{r}
+library(cowplot)
+library(vcfR)
+library(poppr)
+library(adegenet)
+library(ggplot2)
+library(tidyverse)
+```
+
+
+
+# Import data
+```{r}
+vcf_data <- read.vcfR("14pops_biallelic_snps_miss0.4_thin10.newID.mac1.maf0.01.vcf")
+snp_genind <- vcfR2genind(vcf_data, return.alleles = TRUE)
+```
+
+
+# Add population information
+```{r}
+coords <- read.csv("coords_all.csv")
+pop(snp_genind) <- coords$NAME_OF_POPULATION
+```
+
+
+
+# Convert to genclone and count clones
+```{r}
+snp_genclone <- as.genclone(snp_genind)
+mlg.filter(snp_genclone, distance = bitwise.dist) <- 0.01
+```
+
+
+
+# Get clone counts per population
+```{r}
+clone_counts <- rowSums(mlg.table(snp_genclone) > 0)
+print(clone_counts)
+```
+
+
+# validation of clonality results
+```{r}
+# Compare multiple thresholds as done in literature
+thresholds <- c(0.005, 0.01, 0.02)
+clone_counts <- sapply(thresholds, function(t) {
+  mlg.filter(snp_genclone, distance = bitwise.dist) <- t
+  rowSums(mlg.table(snp_genclone) > 0)
+})
+
+# Examine genetic distance distribution (as recommended in literature)
+distances <- bitwise.dist(snp_genclone)
+hist(as.vector(distances), breaks = 50, main = "Genetic Distance Distribution")
+```
+
+
+
+## visualization
+```{r}
+# After calculating clone counts
+clone_results <- data.frame(
+  Population = names(clone_counts),
+  Clone_Count = clone_counts,
+  Sample_Size = table(pop(snp_genclone))
+)
+
+# Basic bar chart
+ggplot(clone_results, aes(x = Population, y = Clone_Count, fill = Population)) +
+  geom_bar(stat = "identity") +
+  theme_classic() +
+  scale_fill_viridis_d() +  # Nice color palette
+  labs(title = "Number of Multilocus Genotypes per Population",
+       x = "Population", y = "Number of MLGs") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "none") +  # Remove legend since x-axis shows populations
+  coord_cartesian(ylim = c(0, max(clone_results$Clone_Count) * 1.1))  # Add some space at top
+```
