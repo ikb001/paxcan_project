@@ -18,26 +18,75 @@ library(vcfR)
 library(poppr)
 library(adegenet)
 library(ggplot2)
+library(reshape2)
+library(pheatmap)
 library(tidyverse)
 ```
 
 
 
-# Import data
+# Import LD-pruned and non-LD pruned data
 ```{r}
+#non-ld pruned
 vcf_data <- read.vcfR("14pops_biallelic_snps_miss0.4_thin10.newID.mac1.maf0.01.vcf")
-snp_genind <- vcfR2genind(vcf_data, return.alleles = TRUE)
+
+#ld pruned
+vcf_data1 <- read.vcfR("14pops_biallelic_snps_miss0.4_thin10.newID.mac1.maf0.01.ldkb1r0.8.vcf")
 ```
 
 
 # Add population information
 ```{r}
 coords <- read.csv("coords_all.csv")
+snp_genind <- vcfR2genind(vcf_data1, return.alleles = TRUE)
 pop(snp_genind) <- coords$NAME_OF_POPULATION
 ```
 
 
 
+# let's check if there are signals of clonality using the non-pruned data
+```{r}
+# convert vcf to genlight object
+snp_genlight <- vcfR2genlight(vcf_data)
+
+# Add population information
+pop(snp_genlight) <- coords$NAME_OF_POPULATION
+snp_snpclone <- as.snpclone(snp_genlight)
+
+# Random sampling approach (recommended for large SNP datasets)
+ia_results <- samp.ia(snp_snpclone, 
+                      n.snp = 100,    # Sample 100 SNPs at a time
+                      reps = 1000)    # Repeat 1000 times
+
+# View results
+plot(ia_results, main = "Distribution of r̄d Values")
+summary(ia_results)
+```
+
+
+
+# Population-Specific IA Testing
+```{r}
+# Test each population separately
+ia_by_pop <- lapply(seppop(snp_snpclone), function(x) {
+  samp.ia(x, n.snp = 100, reps = 500)
+})
+
+# Summarize results
+ia_summary <- data.frame(
+  Population = names(ia_by_pop),
+  Mean_rbarD = sapply(ia_by_pop, mean),
+  Median_rbarD = sapply(ia_by_pop, median),
+  P_value = sapply(ia_by_pop, function(x) sum(x >= 0) / length(x))
+)
+
+print(ia_summary)
+
+# so we have strong signaling for sexual reproduction instead of clonality. our populations are predominantly sexual with little to no clonal reproduction based on the Index of Association test. The rbarD values, while positive, are not significantly different from what you'd expect under random mating.
+```
+
+
+# clone counting
 # Convert to genclone and count clones
 ```{r}
 snp_genclone <- as.genclone(snp_genind)
@@ -89,3 +138,34 @@ ggplot(clone_results, aes(x = Population, y = Clone_Count, fill = Population)) +
         legend.position = "none") +  # Remove legend since x-axis shows populations
   coord_cartesian(ylim = c(0, max(clone_results$Clone_Count) * 1.1))  # Add some space at top
 ```
+
+
+
+# counting how many true clones there are
+```{r}
+# Check for actual clones
+mlg_table <- mlg.table(snp_genclone)
+repeated_mlgs <- which(rowSums(mlg_table > 1) > 0)
+clone_frequency <- mlg_table[repeated_mlgs, ]
+
+print(clone_frequency)
+
+
+# Convert to long format for ggplot2
+clone_long <- melt(as.matrix(clone_frequency), 
+                   varnames = c("Population", "MLG"), 
+                   value.name = "Count")
+
+# Remove zeros for cleaner visualization
+clone_long <- clone_long[clone_long$Count > 0, ]
+
+pheatmap(clone_frequency,
+         cluster_rows = TRUE,
+         cluster_cols = TRUE,
+         color = colorRampPalette(c("white", "darkblue"))(50),
+         main = "MLG Frequency Across Populations",
+         fontsize_row = 8,
+         fontsize_col = 10,
+         display_numbers = TRUE)  # Shows actual counts in cells
+```
+
