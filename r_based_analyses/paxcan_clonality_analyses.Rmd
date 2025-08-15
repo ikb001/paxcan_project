@@ -169,3 +169,68 @@ pheatmap(clone_frequency,
          display_numbers = TRUE)  # Shows actual counts in cells
 ```
 
+
+
+# addressing population size differences
+```{r}
+# Check sample sizes per population
+pop_sizes <- table(pop(snp_genclone))
+print(pop_sizes)
+
+# Identify problematic populations
+small_pops <- pop_sizes[pop_sizes < 8]
+if(length(small_pops) > 0) {
+  cat("Populations with <8 individuals:\n")
+  print(small_pops)
+}
+```
+
+
+
+# remove populations with less than 8 individuals and re-run the IA analyses
+## re-load the data first and rerun the analyses
+```{r}
+# You'll need to re-import and filter your VCF data
+vcf_data_filtered <- read.vcfR("14pops_biallelic_snps_miss0.4_thin10.newID.mac1.maf0.01.vcf")
+snp_genlight_all <- vcfR2genlight(vcf_data_filtered)
+
+# Add population information
+coords <- read.csv("coords_all.csv")
+pop(snp_genlight_all) <- coords$NAME_OF_POPULATION
+
+# Filter to reliable populations only
+reliable_pops <- names(pop_sizes)[pop_sizes >= 8]
+snp_genlight_filtered <- snp_genlight_all[pop(snp_genlight_all) %in% reliable_pops]
+
+# Convert to snpclone
+snp_snpclone_filtered <- as.snpclone(snp_genlight_filtered)
+
+# Now run global IA analysis
+new_ia_results <- samp.ia(snp_snpclone_filtered, n.snp = 100, reps = 1000)
+
+plot(new_ia_results)
+```
+
+
+
+
+
+## Rerun Population-Specific IA Testing
+```{r}
+# Test each population separately
+ia_by_pop1 <- lapply(seppop(snp_snpclone_filtered), function(x) {
+  samp.ia(x, n.snp = 100, reps = 500)
+})
+
+# Summarize results
+ia_summary1 <- data.frame(
+  Population = names(ia_by_pop1),
+  Mean_rbarD = sapply(ia_by_pop1, mean),
+  Median_rbarD = sapply(ia_by_pop1, median),
+  P_value = sapply(ia_by_pop1, function(x) sum(x >= 0) / length(x))
+)
+
+print(ia_summary1)
+
+# so we still have strong signaling for sexual reproduction instead of clonality. our populations are predominantly sexual with little to no clonal reproduction based on the Index of Association test. The rbarD values, while positive, are not significantly different from what you'd expect under random mating.
+```
