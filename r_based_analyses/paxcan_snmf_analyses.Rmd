@@ -100,7 +100,7 @@ if(!is.na(elbow_k)) {
        pos = 4, col = "green", font = 2)
 
 }
-# looks like we have a cut off at k=11
+# looks like we have a cut off at k=12
 ```
 
 
@@ -115,7 +115,7 @@ vcf_sample_names <- colnames(vcf@gt)[-1]  # Remove first column (FORMAT)
 print("Sample names from VCF:")
 print(vcf_sample_names)
 
-# Read your sample names file
+# Read sample names file
 sample_names_file <- readLines("C:/Users/User/Documents/paxcan_project/sample_names")
 print("Sample names from file:")
 print(sample_names_file)
@@ -137,9 +137,20 @@ if(identical(vcf_sample_names, sample_names_file)) {
 best14 <- which.min(cross.entropy(paxcan_snmf_reps, K = 14))
 
 # 2. Custom colour palette
-my.colors1 <- c("dodgerblue3", "green", "burlywood4", "orange", "yellow",
-                "darkviolet", "black", "tomato", "gold", "chocolate", 
-                "plum", "steelblue", "forestgreen", "turquoise")
+my.colors1 <- c("dodgerblue3", 
+                "green", 
+                "burlywood4", 
+                "orange", 
+                "yellow",
+                "darkviolet", 
+                "black", 
+                "tomato", 
+                "gold", 
+                "chocolate", 
+                "plum", 
+                "steelblue", 
+                "forestgreen", 
+                "turquoise")
 
 # 3. Extract Q-matrix for that run
 q_matrix <- Q(paxcan_snmf_reps, K = 14, run = best14)
@@ -152,7 +163,7 @@ barchart(paxcan_snmf_reps, K = 14, run = best14,
          xlab = "Individuals",
          ylab = "Ancestry proportions",
          main = "Ancestry matrix",
-         lab = TRUE,              # Provide sample names here
+         lab = TRUE,  # Provide sample names here
          sort.by.Q = TRUE) -> bp         # arrange according structuring
 
 # The barchart function should handle the labeling automatically
@@ -160,87 +171,6 @@ barchart(paxcan_snmf_reps, K = 14, run = best14,
 axis(1, at = 1:length(bp$order), 
       labels = bp$order, las = 3, 
       cex.axis = .4)
-
-
-# Aggregate by population for cleaner distribution visualization
-# prepare a table for plotting
-pop_distribution <- all_cords %>% # all cords is from the dapc analyses and contains cords for each of the populations and individuals
-  bind_cols(as.data.frame(q_matrix)) %>%
-  group_by(NAME_OF_POPULATION, lon., lat.) %>%
-  summarise(across(V1:V14, mean), .groups = 'drop')
-
-pop_distribution$pie_radius <- diff(range(pop_distribution$lat.)) * 0.07
-
-# get the base maps
-world_sf  <- ne_countries(scale = "medium", returnclass = "sf") 
-states_sf <- ne_states(country = "United States of America", returnclass = "sf")
-
-# Assign a distinct color per population
-pop_cols <- hue_pal()(nrow(pop_distribution))
-names(pop_cols) <- pop_distribution$NAME_OF_POPULATION
-
-ggplot() +
-  # Base maps
-geom_sf(data = world_sf, fill = "#f0f0f0", color = NA) +
-  geom_sf(data = states_sf, fill = NA, color = "gray50", size = 0.3) +
-  
-  # Pie slices (fill legend: V1–V14)
-  geom_scatterpie(
-    data = pop_distribution,
-    aes(x = lon., y = lat., r = pie_radius, group = NAME_OF_POPULATION),
-    cols = paste0("V", 1:14),
-    color = "white", alpha = 0.85,
-    legend_name = "Ancestralproportions"
-  ) +
-  
-  # Switch to new fill/color scale for population colors
-  new_scale_color() +
-  
-  # points colored by population
-  geom_point(
-    data = pop_distribution,
-    aes(x = lon., y = lat., color = NAME_OF_POPULATION),
-    size = 3, shape = 21, stroke = 1
-  ) +
-  
-  scale_color_manual(
-    name = "Population",
-    values = pop_cols
-  ) +
-  
-  # Map elements
-  coord_sf(
-    xlim = range(pop_distribution$lon.) + c(-2, 2),
-    ylim = range(pop_distribution$lat.) + c(-2, 2),
-    expand = FALSE
-  ) +
-  annotation_scale(location = "bl", width_hint = 0.2) +
-  annotation_north_arrow(
-    location = "bl", which_north = "true",
-    style = north_arrow_fancy_orienteering
-  ) +
-  
-  # Pie size legend
-  geom_scatterpie_legend(
-    pop_distribution$pie_radius,
-    x = min(pop_distribution$lon.),
-    y = min(pop_distribution$lat.) - 1,
-    n = 3,
-    labeller = function(x) round(pi * x^2, 2)
-  ) +
-  
-  # Styling
-  theme_void() +
-  theme(
-    legend.position.inside = c(0.85, 0.25),
-    legend.background = element_rect(fill = "white", color = NA)
-  ) +
-  ggtitle("Population Admixture (K = 14)")
-
-
-# save the map
-ggsave("admixture_map_k14.png", 
-       width = 12, height = 8, dpi = 300)
 ```
 
 
@@ -248,12 +178,22 @@ ggsave("admixture_map_k14.png",
 # visualize k=12 for our best K from the cross entropy analyses
 ```{r}
 set.seed(123)
-# Determine optimal run for K = 11
+# Determine optimal run for K = 12
 best12 <- which.min(cross.entropy(paxcan_snmf_reps, K = 12))
 
 # Custom colour palette
-my.colors2 <- c("dodgerblue3", "green", "burlywood4", "orange", "yellow",
-                "darkviolet", "black", "tomato", "gold", "chocolate", "plum", "turquoise")
+my.colors2 <- c("dodgerblue3", 
+                "green", 
+                "burlywood4", 
+                "orange", 
+                "yellow",
+                "darkviolet", 
+                "black", 
+                "tomato", 
+                "gold", 
+                "chocolate", 
+                "plum", 
+                "turquoise")
 
 # Extract Q-matrix for that run
 q_matrix1 <- Q(paxcan_snmf_reps, K = 12, run = best12)
@@ -262,15 +202,33 @@ q_matrix1 <- Q(paxcan_snmf_reps, K = 12, run = best12)
 # Convert Q-matrix into long format
 df <- as.data.frame(q_matrix1)
 df$sample <- rownames(df)
-df_long <- pivot_longer(df, cols = starts_with("V"), 
-                        names_to = "Component", values_to = "Proportion")
+df_long <- pivot_longer(df, 
+                        cols = starts_with("V"), 
+                        names_to = "Component", 
+                        values_to = "Proportion")
+
+barchart(paxcan_snmf_reps, 
+         K = 12, 
+         run = best12,
+         border = NA, 
+         space = 0,
+         col = my.colors2,
+         xlab = "Individuals",
+         ylab = "Ancestry proportions",
+         main = "Ancestry matrix",
+         lab = TRUE,  # Provide sample names here
+         sort.by.Q = TRUE) -> bp1 
 
 # Ensure sample ordering matches bp1$order
-df_long$sample <- factor(df_long$sample, levels = bp1$order)
+df_long$sample <- factor(df_long$sample, 
+                         levels = bp1$order)
 
-ggplot(df_long, aes(x = sample, y = Proportion, fill = Component)) +
+ggplot(df_long, aes(x = sample, 
+                    y = Proportion, 
+                    fill = Component)) +
   geom_col() +
-  scale_fill_manual(values = my.colors2, name = "Ancestral Component") +
+  scale_fill_manual(values = my.colors2, 
+                    name = "Ancestral Component") +
   labs(x = "Individuals", y = "Ancestry proportions") +
   theme_classic() +
   theme(axis.text.x = element_text(angle = 60, hjust = 1, size = 6))
@@ -300,7 +258,7 @@ barchart(paxcan_snmf_reps, K = 2, run = best2,
          ylab = "Ancestry proportions",
          main = "Ancestry matrix",
          lab = TRUE,
-         sort.by.Q = TRUE) -> bp2         # arrange according structuring
+         sort.by.Q = TRUE) -> bp2 # arrange according structuring
 
 axis(1, at = 1:length(bp2$order), 
       labels = bp2$order, las = 3, 

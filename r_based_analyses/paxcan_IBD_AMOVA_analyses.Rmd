@@ -93,8 +93,38 @@ plot(paxcan_ibd)
 
 
 
+
+## save the ibd plot as a jpeg at 300 dpi
+jpeg(
+  filename = "IBD.jpeg",
+  width = 8,
+  height = 8,
+  units = "in",
+  res = 300,
+  bg = "white"
+)
+
+## draw plot into the file
 # confirming with dartr
-paxcan_ibd1 <- gl.ibd(x = NULL, Dgen = Dgen, Dgeo = Dgeo, permutations = 999)
+paxcan_ibd1 <- gl.ibd(x = NULL, Dgen = Dgen, 
+                      Dgeo = Dgeo, 
+                      permutations = 999)
+
+dev.off()
+
+# Create Word document and insert image
+doc <- read_docx()
+
+doc <- body_add_par(doc, "IBD Results", 
+                    style = "heading 1")
+doc <- body_add_img(
+  doc,
+  src = "IBD.jpeg",
+  width = 8,
+  height = 8
+)
+
+print(doc, target = "IBD_results_figure_7.docx")
 
 #Analysis performed using provided genetic and Euclidean distance matrices. If a genlight object is provided, it is ignored.
 #  Coordinates used from: Dgeo provided. 

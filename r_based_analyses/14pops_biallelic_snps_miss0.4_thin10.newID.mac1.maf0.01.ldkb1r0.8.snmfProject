@@ -153,5 +153,5 @@ new("snmfProject", snmfProject.file = "14pops_biallelic_snps_miss0.4_thin10.newI
     "K12/run10/14pops_biallelic_snps_miss0.4_thin10.newID.mac1.maf0.01.ldkb1r0.8_r10.12.snmfClass", 
     "K13/run10/14pops_biallelic_snps_miss0.4_thin10.newID.mac1.maf0.01.ldkb1r0.8_r10.13.snmfClass", 
     "K14/run10/14pops_biallelic_snps_miss0.4_thin10.newID.mac1.maf0.01.ldkb1r0.8_r10.14.snmfClass"
-    ), n = 165L, L = 21696L, creationTime = structure(1753215299.52665, class = c("POSIXct", 
+    ), n = 165L, L = 21696L, creationTime = structure(1774383400.78536, class = c("POSIXct", 
     "POSIXt")))

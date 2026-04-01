@@ -20,6 +20,7 @@ library(ape)
 library(dartR)
 library(plotly)
 library(poppr) 
+library(officer)
 library(ggplot2)
 library(tidyverse)
 ```
@@ -28,7 +29,7 @@ library(tidyverse)
 
 # load in and convert the data into a genlight object
 ```{r}
-vcf <- read.vcfR("C:/Users/User/Documents/paxcan_project/14pops_biallelic_snps_miss0.4_thin10.newID.mac1.maf0.01.ldkb1r0.8.vcf")
+vcf <- read.vcfR("C:/Users/User/Documents/paxcan_project/r_based_analyses/14pops_biallelic_snps_miss0.4_thin10.newID.mac1.maf0.01.ldkb1r0.8.vcf")
 
 # convert the vcf file into a genlight object
 paxcan_gl <- vcfR2genlight(vcf)
@@ -116,9 +117,20 @@ ggplot(coords, aes(Axis.1, Axis.2, colour = pop)) +
   theme_classic()
 
 # make a custom set of colors for the 14 pops
-my.colors1 <- c("dodgerblue3", "green", "burlywood4", "orange", "yellow",
-                "darkviolet", "black", "tomato", "gold", "chocolate", 
-                "plum", "steelblue", "forestgreen", "turquoise")
+my.colors1 <- c("dodgerblue3", 
+                "green", 
+                "burlywood4", 
+                "orange", 
+                "yellow",
+                "darkviolet", 
+                "black", 
+                "tomato", 
+                "gold", 
+                "chocolate", 
+                "plum", 
+                "steelblue", 
+                "forestgreen", 
+                "turquoise")
 
 # Create interactive 3D PCoA plot with plotly
 pcoa_3d <- plot_ly(coords, 
@@ -167,11 +179,36 @@ scores$pop <- pop(paxcan_gl)
 ## visualize PCA in 2D and 3D
 ```{r}
 # MAKE A 2D PLOT WITH GGPLOT
-ggplot(scores, aes(PC1, PC2, colour = pop)) +
+pca_2d <- ggplot(scores, aes(PC1, PC2, colour = pop)) +
   geom_point(size = 3) +
   labs(x = sprintf("PCA1 (%.1f%%)", var_exp[1]),
        y = sprintf("PCA2 (%.1f%%)", var_exp[2])) +
   theme_classic()
+
+# Save pca at 300 dpi
+ggsave(
+  filename = "pca.jpeg",
+  plot = pca_2d,
+  width = 8,
+  height = 8,
+  units = "in",
+  dpi = 300,
+  bg = "white"
+)
+
+# Create Word document and insert image
+doc <- read_docx()
+
+doc <- body_add_par(doc, "PCA Results", 
+                    style = "heading 1")
+doc <- body_add_img(
+  doc,
+  src = "pca.jpeg",
+  width = 8,
+  height = 8
+)
+
+print(doc, target = "pca_results_figure_6.docx")
 
 # Create interactive 3D PCA plot with plotly
 pca_3d <- plot_ly(scores, 
@@ -197,8 +234,6 @@ pca_3d <- plot_ly(scores,
 pca_3d
 
 # Same results as that of the PCoA.
-
-
 # Save as HTML widget (interactive)
 htmlwidgets::saveWidget(pca_3d, "pca_3d_interactive.html")
 ```
@@ -216,13 +251,43 @@ paxcan.dapc <- dapc(paxcan_gl, n.pca = 3, n.da = 2)
 
 ## plot the dapc
 ```{r}
+# dapc scatter plot
+## save the dapc scatter plot as a jpeg at 300 dpi
+jpeg(
+  filename = "dapc.scatter.jpeg",
+  width = 8,
+  height = 8,
+  units = "in",
+  res = 300,
+  bg = "white"
+)
+
+## draw plot into the file
 scatter(paxcan.dapc, 
         col = my.colors1, 
         cex = 2, 
         legend = TRUE, 
         clabel = F, 
-        posi.leg = "topleft", scree.pca = TRUE,
-        posi.pca = "bottomleft", cleg = 0.75)
+        posi.leg = "topleft", 
+        scree.pca = TRUE,
+        posi.pca = "bottomleft", 
+        cleg = 0.75)
+
+dev.off()
+
+# Create Word document and insert image
+doc <- read_docx()
+
+doc <- body_add_par(doc, "DAPC Results Scatter Plot", 
+                    style = "heading 1")
+doc <- body_add_img(
+  doc,
+  src = "dapc.scatter.jpeg",
+  width = 8,
+  height = 8
+)
+
+print(doc, target = "dapc_results_figure_5.docx")
 
 
 # compoplot
@@ -231,22 +296,54 @@ dapc.results$pop <- pop(paxcan_gl)
 dapc.results$indNames <- rownames(dapc.results)
 
 # make the dataframe longer for easy visualization
-dapc.results <- pivot_longer(dapc.results, -c(pop, indNames))
+dapc.results <- pivot_longer(dapc.results, 
+                             -c(pop, indNames))
 
 # rename the columns
 colnames(dapc.results) <- c("Original_Pop","Sample","Assigned_Pop","Posterior_membership_probability")
 
 # create the compoplot
 p <- ggplot(dapc.results, 
-            aes(x = Sample, y = Posterior_membership_probability, fill = Assigned_Pop)) +
+            aes(x = Sample, 
+                y = Posterior_membership_probability, 
+                fill = Assigned_Pop)) +
   geom_bar(stat = 'identity') +
   scale_fill_manual(values = my.colors1) +
   facet_grid(~Original_Pop, scales = "free") +
   theme_classic() +
   theme(
-    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 8)
+    axis.text.x = element_text(angle = 45, 
+                               hjust = 1, 
+                               vjust = 1, 
+                               size = 8)
   )
 p
+
+# Save compositional plot at 300 dpi
+ggsave(
+  filename = "compoplot.jpeg",
+  plot = p,
+  width = 8,
+  height = 8,
+  units = "in",
+  dpi = 300,
+  bg = "white"
+)
+
+# Create Word document and insert image
+doc <- read_docx()
+
+doc <- body_add_par(doc, "Paxican_compoplot", 
+                    style = "heading 1")
+doc <- body_add_img(
+  doc,
+  src = "compoplot.jpeg",
+  width = 8,
+  height = 8
+)
+
+print(doc, target = "supplemental_figure_1_compoplot.docx")
+
 
 # i am tempted to agree with scott schuette on the where ancestral populations lie across the range, this feature seen is similar to the theory on populations on the extremes of the species range being very dissimilar from the others.
 ```

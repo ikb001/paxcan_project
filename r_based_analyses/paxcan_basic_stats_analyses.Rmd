@@ -21,6 +21,7 @@ library(gt)
 library(dartR)
 library(cowplot)
 library(ggplot2)
+library(officer)
 library(tidyverse)
 ```
 
@@ -220,14 +221,11 @@ melted$Var2 <- factor(melted$Var2, levels = site_order)
 combined <- ggplot(melted, aes(Var2, Var1, fill = value)) + 
   geom_tile(color = "white") +
   scale_fill_gradient(low = "white", high = "red", name = "FST") +
-  ggtitle(expression(atop("Pairwise FST, WC (1984), Combined", atop(italic("N = 165"), "")))) +
   labs(x = "Sampling Site", y = "Sampling Site") +
   theme_classic() +
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1, size = 12),
-    axis.text.y = element_text(size = 13),
-    plot.title = element_text(size = 14, face = "bold")
-  ) +
+    axis.text.y = element_text(size = 13)) +
   coord_fixed()
 
 # Add division lines (adjust based on new ordering)
@@ -238,7 +236,7 @@ combined <- combined +
   geom_hline(yintercept = division_line_position, linewidth = 1.2)
 
 # Add group labels
-# Cumulative block sizes ---
+# Cumulative block sizes
 cum_central <- length(central_ordered) # last row of Central Appalachian block
 cum_total   <- length(central_ordered) +               
                length(cumberland_ordered) # last row overall
@@ -246,19 +244,19 @@ cum_total   <- length(central_ordered) +
 # Division labels aligned to top edge 
 combined <- combined +
   annotate("text",
-           x        = 0.3,            # small left offset inside the facet
-           y        = cum_central,    # top edge of first block
+           x = 0.9, # small left offset inside the facet
+           y = cum_central,   # top edge of first block
            label    = "Central Appalachian\nMountains",
-           hjust    = 0,              # left-align
-           vjust    = 1,              # anchor to top of the row
+           hjust    = 0,    # center-align
+           vjust    = 1,     # anchor to top of the row
            angle    = 0,
            size     = 4.5,
            fontface = "bold") +
   annotate("text",
-           x        = 0.3,
-           y        = cum_total,      # top edge of second block (= last row)
-           label    = "Cumberland–Allegheny\nInterior Plateaus",
-           hjust    = 0,
+           x = 0.9,
+           y = cum_total, # top edge of second block (= last row)
+           label = "Cumberland–Allegheny\nInterior Plateaus",
+           hjust    = 0, # center-align
            vjust    = 1,
            angle    = 0,
            size     = 4.5,
@@ -266,6 +264,32 @@ combined <- combined +
   theme(plot.margin = margin(t = 10, r = 10, b = 10, l = 50))
 
 combined
+
+
+# Save heatmap at 300 dpi
+ggsave(
+  filename = "fst_heatmap_300dpi.jpeg",
+  plot = combined,
+  width = 8,
+  height = 8,
+  units = "in",
+  dpi = 300,
+  bg = "white"
+)
+
+# Create Word document and insert image
+doc <- read_docx()
+
+doc <- body_add_par(doc, "FST Heatmap", 
+                    style = "heading 1")
+doc <- body_add_img(
+  doc,
+  src = "fst_heatmap_300dpi.jpeg",
+  width = 8,
+  height = 8
+)
+
+print(doc, target = "fst_heatmap_figure_4.docx")
 ```
 
 
@@ -370,7 +394,7 @@ dev.off()
 ```{r}
 bartlett.test(list(paxcanHet$Hexp, paxcanHet$Hobs))
 
-# so there's observed heterozygosity is higher and statistically significant at that.
+# so the observed heterozygosity is higher and statistically significant at that.
 ```
 
 
