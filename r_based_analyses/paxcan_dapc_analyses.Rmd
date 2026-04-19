@@ -23,6 +23,8 @@ library(poppr)
 library(officer)
 library(ggplot2)
 library(tidyverse)
+library(ggrepel)
+# sourced the ggDAPC script from "https://raw.githubusercontent.com/wilsonfrantine/ggDAPC/main/ggDAPC.R" for DAPC visualizations
 ```
 
 
@@ -65,13 +67,29 @@ pop(paxcan_gl) <- all_cords$NAME_OF_POPULATION[match(indNames(paxcan_gl), all_co
 ```
 
 
+# define colors for 14 pops
+```{r}
+# Define once, at the top, before any plot chunk
+my.colors1 <- c("dodgerblue3", 
+                "green", 
+                "burlywood4", 
+                "orange", 
+                "yellow",
+                "darkviolet", 
+                "black", "tomato", "gold", "chocolate",
+                "plum", "steelblue", 
+                "forestgreen", "turquoise")
+```
+
+
 # Summarize data quality and diversity
 ```{r}
-glSum(paxcan_gl)    # numbers of loci & indivs
-glNA(paxcan_gl)     # missingness per sample
-glMean(paxcan_gl)   # allele frequencies per locus
-glVar(paxcan_gl)    # locus variances
+#glSum(paxcan_gl)    # numbers of loci & indivs
+#glNA(paxcan_gl)     # missingness per sample
+#glMean(paxcan_gl)   # allele frequencies per locus
+#glVar(paxcan_gl)    # locus variances
 ```
+
 
 
 # PCoA analyses
@@ -94,43 +112,30 @@ coords$pop <- pop(paxcan_gl)
 
 # percent variation explained by each axis
 var_exp  <- 100 * pcoa_res$values$Relative_eig
-head(var_exp)                      # view first few axes
+head(var_exp)  # view first few axes
 ```
 
 
 ## confirm with dartR
 ```{r}
-pcoa_res1 <- gl.pcoa(D, nfactors = 5, correction = "none", verbose = 3)
+pcoa_res1 <- gl.pcoa(paxcan_gl, nfactors = 5, correction = "none", verbose = 3)
 # same information is inside pcoa_res$eig (eigenvalues) and pcoa_res$scores
 
-scatter(pcoa_res1)
+gl.pcoa.plot(pcoa_res1, paxcan_gl, xaxis = 1, yaxis = 2)
 ```
 
 
 ## visualize the results
 ```{r visualize PCoA results}
 # MAKE A 2D PLOT WITH GGPLOT
-ggplot(coords, aes(Axis.1, Axis.2, colour = pop)) +
+ggplot(coords, aes(Axis.1, Axis.2, 
+                   shape = pop, 
+                   colour = pop)) +
+  scale_shape_manual(values = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13)) +
   geom_point(size = 3) +
   labs(x = sprintf("PCo1 (%.1f%%)", var_exp[1]),
        y = sprintf("PCo2 (%.1f%%)", var_exp[2])) +
   theme_classic()
-
-# make a custom set of colors for the 14 pops
-my.colors1 <- c("dodgerblue3", 
-                "green", 
-                "burlywood4", 
-                "orange", 
-                "yellow",
-                "darkviolet", 
-                "black", 
-                "tomato", 
-                "gold", 
-                "chocolate", 
-                "plum", 
-                "steelblue", 
-                "forestgreen", 
-                "turquoise")
 
 # Create interactive 3D PCoA plot with plotly
 pcoa_3d <- plot_ly(coords, 
@@ -141,7 +146,8 @@ pcoa_3d <- plot_ly(coords,
                    colors = my.colors1,
                    type = "scatter3d",
                    mode = "markers",
-                   marker = list(size = 5, opacity = 0.8),
+                   marker = list(size = 5, 
+                                 opacity = 0.8),
                    text = ~paste("Population:", pop),
                    hoverinfo = "text") %>%
   layout(
@@ -172,17 +178,25 @@ scores <- as.data.frame(pca1$scores)
 
 # assign population information to scores
 scores$pop <- pop(paxcan_gl)
+
+# compute PCA-specific variance first, then use it
+pca_var_exp <- 100 * pca1$eig / sum(pca1$eig)
+
+head(pca_var_exp)
 ```
 
 
 
 ## visualize PCA in 2D and 3D
-```{r}
+```{r pca visuals}
 # MAKE A 2D PLOT WITH GGPLOT
-pca_2d <- ggplot(scores, aes(PC1, PC2, colour = pop)) +
+pca_2d <- ggplot(scores, aes(PC1, PC2, 
+                             shape = pop, 
+                             colour = pop)) +
+   scale_shape_manual(values = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13)) +
   geom_point(size = 3) +
-  labs(x = sprintf("PCA1 (%.1f%%)", var_exp[1]),
-       y = sprintf("PCA2 (%.1f%%)", var_exp[2])) +
+  labs(x = sprintf("PCA1 (%.1f%%)", pca_var_exp[1]),
+       y = sprintf("PCA2 (%.1f%%)", pca_var_exp[2])) +
   theme_classic()
 
 # Save pca at 300 dpi
@@ -231,13 +245,13 @@ pca_3d <- plot_ly(scores,
     )
   )
 
+pca_2d
 pca_3d
 
-# Same results as that of the PCoA.
+# Same results as that of the PCA.
 # Save as HTML widget (interactive)
 htmlwidgets::saveWidget(pca_3d, "pca_3d_interactive.html")
 ```
-
 
 
 
@@ -251,7 +265,250 @@ paxcan.dapc <- dapc(paxcan_gl, n.pca = 3, n.da = 2)
 
 ## plot the dapc
 ```{r}
+# We would like our points to be shaped so we will need to modify the ggDAPC code to help us get it right. So here goes nothing:
+
+# modified ggDAPC code
+ggDapc_shaped <- function(dapc     = NULL,
+                          k        = NULL,
+                          x        = "LD1",
+                          y        = "LD2",
+                          cstar    = TRUE,
+                          ellipse  = TRUE,
+                          labels   = TRUE,
+                         pt.size  = 3) {
+  # internal data shaper (unchanged from ggDAPC source)
+  ggDataShaper <- function(x, 
+                           k = NULL) {
+    if (is.null(k)) k <- x$grp
+    da.coord  <- data.frame(x$ind.coord, 
+                            grp = x$grp) %>% 
+      as_tibble()
+    grp.coord <- data.frame(x$grp.coord, 
+                            grp = rownames(x$grp.coord))
+    ind.coord <- left_join(da.coord, 
+                           grp.coord, 
+                           by = "grp", 
+                           suffix = c("", ".c"))
+    ind.coord$grp <- k
+    labels  <- data.frame(x$grp.coord, 
+                        "Pop" = row.names(x$grp.coord))
+    list(ind.coord = ind.coord, grp.labels = labels)
+  }
+# scatter with shape added 
+  ggScatter <- function(ggdata, x, y, cstar, ellipse, grp.labels, pt.size) {
+    out <- ggplot(ggdata$ind.coord,
+                  aes_string(x = x, y = y,
+                             color = "grp",
+                             #shape added here
+                            shape = "grp")) +
+      geom_point(size = pt.size) +
+      scale_color_scico_d(palette = "romaO", 
+                          begin = 0.2, end = 0.8) +
+      scale_fill_scico_d(palette  = "romaO", 
+                         begin = 0.2, end = 0.8) +
+      theme(legend.position = "none") +
+      theme_classic()
+
+    if (cstar) {
+      out <- out + geom_segment(
+        data = ggdata$ind.coord,
+        aes_string(x    = x,  xend = paste0(x, ".c"),
+                   y    = y,  yend = paste0(y, ".c")),
+        inherit.aes = FALSE
+      )
+    }
+    if (ellipse) out <- out + stat_ellipse(
+  type = "norm",
+  na.rm  = TRUE
+)
+   if (grp.labels) out <- out + ggrepel::geom_text_repel(
+  data        = ggdata$grp.labels,
+  aes_string(x = x, y = y, label = "Pop"),
+  color       = "black", fontface = "bold", size = 4,
+  inherit.aes = FALSE,
+  max.overlaps = Inf,
+  box.padding  = 0.5
+)
+    out
+  }
+# density fallback for single DA (unchanged) 
+  ggDensity <- function(ggdata, x) {
+    d <- density(unlist(ggdata$ind.coord[, x]))
+    ggplot(ggdata$ind.coord,
+           aes_string(x = x, 
+                      groups = "grp", 
+                      fill = "grp", 
+                      colour = "grp")) +
+      geom_density(alpha = 0.7) +
+      xlim(min(d$x), max(d$x)) +
+      labs(fill = x, color = x) +
+      scale_color_scico_d(palette = "romaO", 
+                          begin = 0.2, end = 0.8) +
+      scale_fill_scico_d(palette  = "romaO", 
+                         begin = 0.2, end = 0.8) +
+      theme_classic()
+  }
+shaped_data <- ggDataShaper(dapc, k)
+
+  if (dapc$n.da > 1)
+    ggScatter(shaped_data, 
+              x, 
+              y, 
+              cstar, 
+              ellipse, 
+              labels, 
+              pt.size)
+  else
+    ggDensity(shaped_data, x)
+}
+```
+
+
+
+## apply modified functions
+```{r DAPC visuals}
+p_scatter <- ggDapc_shaped(paxcan.dapc,
+                           x       = "LD1",
+                           y       = "LD2",
+                           cstar   = TRUE,
+                           ellipse = TRUE,
+                           labels  = TRUE,
+                           pt.size = 3)
+
+p_scatter <- p_scatter +
+  scale_shape_manual(
+    values = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13))
+
+p_scatter
+```
+
+
+## bug fixes for ggDAPC
+```{r}
+source("https://raw.githubusercontent.com/wilsonfrantine/ggDAPC/main/ggDAPC.R")
+
+## found a couple bugs in the ggPCvar, ggDAplot, and ggCompoplot functions in ggDAPC. These should fix them. They would overwrite the broken versions of those functions
+ggPCvar <- function(x) {
+  data.frame(
+    var     = cumsum(x$pca.eig) / sum(x$pca.eig) * 100,
+    ret.pca = c(rep(TRUE,  ncol(x$tab)),                        # use ncol not length
+                rep(FALSE, length(x$pca.eig) - ncol(x$tab))),
+    pca     = seq_along(x$pca.eig)
+  ) %>%
+    ggplot(aes(y = var, x = pca, fill = ret.pca)) +
+    geom_col(width = 1) +
+    theme_classic() +
+    scale_fill_scico_d(palette = "grayC", begin = 0.1, end = 0.2) +
+    theme(legend.position = "none") +
+    labs(y = "PC cum. var. %", x = "PC")
+}
+
+## same issue for ggDAplot. This should overwrite the main funntion
+ggDAplot <- function(x) {
+  data.frame(
+    DA     = colnames(x$loadings),
+    # subset to n.da values only
+    values = x$eig[seq_len(ncol(x$loadings))],   
+    fill   = "gray"
+  ) %>%
+    ggplot(aes(x = DA, y = values, fill = fill)) +
+    geom_col() +
+    theme_classic() +
+    labs(y = "DA eigenvalues", x = "") +
+    scale_fill_scico_d(palette = "grayC", begin = 0.2) +
+    theme(legend.position = "none")
+}
+
+## same for making the compoplot
+ggCompoplot <- function(dapc) {
+  # create a clean row order, then derive both the posterior matrix and the population labels from that same ordered index so they stay aligned.
+  grp_vec <- as.character(dapc$grp)
+  grp_order <- order(grp_vec)
+  posterior_sorted <- dapc$posterior[grp_order, 
+                                   , drop = FALSE]
+  grp_sorted <- grp_vec[grp_order]
+  
+  # make the block boundaries from grp_sorted
+  runs <- rle(grp_sorted)
+  ends <- cumsum(runs$lengths)
+  starts <- ends - runs$lengths + 1
+  centers <- (starts + ends) / 2
+
+  #make a temporary dataframe to hold the sorted values
+temp.data <- data.frame(
+  value = runs$values,
+  x = starts,
+  xend = ends + 1,
+  labels.pos = centers,
+  y = -0.05,
+  yend = -0.05
+)
+
+# make plot
+  out <- posterior_sorted %>%
+  as_tibble() %>%
+  mutate(ind = row_number()) %>%
+  pivot_longer(cols = -ind, names_to = "grp", values_to = "prob") %>%
+  ggplot(aes(y = prob, x = ind, fill = grp)) +
+  geom_col(position = "stack", width = 1) +
+  scale_x_continuous(
+    breaks = temp.data$labels.pos,
+    labels = temp.data$value
+  ) +
+  labs(y = "membership probability", x = "", fill = "") +
+  theme_classic() +
+  scale_fill_scico_d(palette = "romaO", begin = 0.2, end = 0.8, aesthetics = "fill") +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "none"
+  )
+  return(out)
+}
+```
+
+
+## scree plots and compoplots + combined figure
+```{r DAPC screes and combined}
+p_pcvar <- ggPCvar(paxcan.dapc)# cumulative PCA variance
+p_da    <- ggDAplot(paxcan.dapc)   # DA eigenvalues
+p_compo <- ggCompoplot(paxcan.dapc) # compo plot
+
+
+# combine all four panels with patchwork
+p_combined <- (p_scatter | (p_pcvar / p_da)) / p_compo +
+  plot_layout(heights = c(3, 1))
+
+p_combined
+
+ggsave("dapc_scatter.jpeg",
+       plot = p_combined,
+       width = 10, height = 7,
+       units = "in", dpi = 300, bg = "white")
+
+ggsave("compoplot.jpeg",
+       plot = p_compo,
+       width = 10, height = 4,
+       units = "in", dpi = 300, bg = "white")
+```
+
+
+
+
+
+
+
+# old code
+```{r}
 # dapc scatter plot
+#Scatter plot (ggDapc replaces scatter()) 
+p_scatter <- ggDapc(paxcan.dapc,
+                    x= "LD1",
+                    y= "LD2",
+                    cstar= TRUE,    # lines from individual to group centroid
+                    ellipse = TRUE, # confidence ellipses
+                    labels  = TRUE)# group name labels
+
+
 ## save the dapc scatter plot as a jpeg at 300 dpi
 jpeg(
   filename = "dapc.scatter.jpeg",
@@ -261,18 +518,6 @@ jpeg(
   res = 300,
   bg = "white"
 )
-
-## draw plot into the file
-scatter(paxcan.dapc, 
-        col = my.colors1, 
-        cex = 2, 
-        legend = TRUE, 
-        clabel = F, 
-        posi.leg = "topleft", 
-        scree.pca = TRUE,
-        posi.pca = "bottomleft", 
-        cleg = 0.75)
-
 dev.off()
 
 # Create Word document and insert image
@@ -343,14 +588,6 @@ doc <- body_add_img(
 )
 
 print(doc, target = "supplemental_figure_1_compoplot.docx")
-
-
-# i am tempted to agree with scott schuette on the where ancestral populations lie across the range, this feature seen is similar to the theory on populations on the extremes of the species range being very dissimilar from the others.
 ```
-
-
-
-
-
 
 
