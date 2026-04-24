@@ -198,13 +198,10 @@ ordered_sites <- mean_fst_by_pop$Var1
 
 # Define populations by division
 central_populations <- c(
-  "Saint Clairesville", "Shawnee State Park", "Lutzville", 
-  "Town Creek", "False Castle Rock", "Bluerock", "SELU", 
-  "Smoke Hole", "The Pinnacle", "Brush Creek Falls1", 
-  "Powers Hollow", "Knobbs Mountain"
-)
+  "Saint Clairesville", "Shawnee State Park", "Lutzville", "Town Creek", "False Castle Rock", "Bluerock", "SELU", "Smoke Hole", "The Pinnacle", "Brush Creek Falls1", "Powers Hollow", "Knobbs Mountain")
 
-cumberland_populations <- c("Carter Caves", "Sweet Lilly Ridge")
+cumberland_populations <- c("Carter Caves", 
+                            "Sweet Lilly Ridge")
 
 # Order each division by mean FST values
 central_ordered <- ordered_sites[ordered_sites %in% central_populations]
@@ -268,28 +265,14 @@ combined
 
 # Save heatmap at 300 dpi
 ggsave(
-  filename = "fst_heatmap_300dpi.jpeg",
+  filename = "figure_5_fst_heatmap.jpeg",
   plot = combined,
-  width = 8,
-  height = 8,
-  units = "in",
+  width = 13.8,
+  height = 14,
+  units = "cm",
   dpi = 300,
   bg = "white"
 )
-
-# Create Word document and insert image
-doc <- read_docx()
-
-doc <- body_add_par(doc, "FST Heatmap", 
-                    style = "heading 1")
-doc <- body_add_img(
-  doc,
-  src = "fst_heatmap_300dpi.jpeg",
-  width = 8,
-  height = 8
-)
-
-print(doc, target = "fst_heatmap_figure_4.docx")
 ```
 
 
@@ -298,12 +281,12 @@ print(doc, target = "fst_heatmap_figure_4.docx")
 ## pairwise fst plot based on states
 ```{r}
 ### Compute a per-population mean FST
-mean_fst <- melted %>%                         # melted has Var1, Var2, value
-  group_by(Var1) %>%                           # one row per focal population
+mean_fst <- melted %>% # melted has Var1, Var2, value
+  group_by(Var1) %>% # one row per focal population
   summarise(mean_fst = mean(value, na.rm = TRUE)) %>% 
-  arrange(mean_fst)                            # ascending order
+  arrange(mean_fst) # ascending order
 
-ordered_all <- mean_fst$Var1                  # vector of names ranked by FST
+ordered_all <- mean_fst$Var1 # vector of names ranked by FST
 
 ### Define the five state groupings
 pa   <- c("Saint Clairesville", "Shawnee State Park", "Lutzville")
@@ -331,7 +314,7 @@ combined1 <- ggplot(melted, aes(Var2, Var1, fill = value)) +
   geom_tile(color = "white") +
   scale_fill_gradient(low = "white", high = "red", name = "FST") +
   ggtitle(expression(atop("Pairwise FST, WC (1984), Combined",
-                          atop(italic("N = 165"), "")))) +
+          atop(italic("N = 165"), "")))) +
   labs(x = "Sampling Site", y = "Sampling Site") +
   theme_classic() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 12),

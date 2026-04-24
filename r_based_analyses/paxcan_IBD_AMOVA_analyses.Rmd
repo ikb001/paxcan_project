@@ -75,8 +75,23 @@ Dgeo <- dist(cords)
 ```{r}
 paxcan_ibd <- mantel.randtest(Dgen, Dgeo)
 
+# Open the device FIRST
+jpeg(
+  filename = "figure_8_Mantel_Test.jpeg",
+  width    = 6.7,
+  height   = 8,
+  units    = "cm",
+  res      = 300,
+  bg       = "white"
+)
+
+# Draw the plot INTO the open device
 plot(paxcan_ibd)
 
+# Close and write to disk
+dev.off()
+
+# results from ibd test
 #Monte-Carlo test
 #Call: mantel.randtest(m1 = Dgen, m2 = Dgeo)
 
@@ -96,9 +111,9 @@ plot(paxcan_ibd)
 
 ## save the ibd plot as a jpeg at 300 dpi
 jpeg(
-  filename = "IBD.jpeg",
-  width = 8,
-  height = 8,
+  filename = "figure_8_Mantel_Test.jpeg",
+  width = 5,
+  height = 5,
   units = "in",
   res = 300,
   bg = "white"
@@ -106,26 +121,25 @@ jpeg(
 
 ## draw plot into the file
 # confirming with dartr
+# Open the device FIRST
+jpeg(
+  filename = "figure_8_Mantel_Test2.jpeg",
+  width    = 6.7,
+  height   = 8,
+  units    = "cm",
+  res      = 300,
+  bg       = "white"
+)
+
+# Draw the plot INTO the open device
 paxcan_ibd1 <- gl.ibd(x = NULL, Dgen = Dgen, 
                       Dgeo = Dgeo, 
                       permutations = 999)
 
+# Close and write to disk
 dev.off()
 
-# Create Word document and insert image
-doc <- read_docx()
-
-doc <- body_add_par(doc, "IBD Results", 
-                    style = "heading 1")
-doc <- body_add_img(
-  doc,
-  src = "IBD.jpeg",
-  width = 8,
-  height = 8
-)
-
-print(doc, target = "IBD_results_figure_7.docx")
-
+# results from dartr confirmation
 #Analysis performed using provided genetic and Euclidean distance matrices. If a genlight object is provided, it is ignored.
 #  Coordinates used from: Dgeo provided. 
 #  Transformation of Dgeo: Dgeo 

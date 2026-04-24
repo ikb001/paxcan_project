@@ -1,6 +1,6 @@
 ---
 title: "paxcan_pca_pcoa_dapc_analyses"
-author: "Isaac Buabeng"
+author: "Isaac Buabeng / claude AI"
 date: "`r Sys.Date()`"
 output: html_document
 ---
@@ -82,6 +82,7 @@ my.colors1 <- c("dodgerblue3",
 ```
 
 
+
 # Summarize data quality and diversity
 ```{r}
 #glSum(paxcan_gl)    # numbers of loci & indivs
@@ -160,7 +161,7 @@ pcoa_3d <- plot_ly(coords,
   )
 
 pcoa_3d
-# looks like powers hollow, knobbs mountain and saint clairesville offer the most distinguishing featuures as the separate form the main cluster.  
+# looks like powers hollow, knobbs mountain and saint clairesville offer the most distinguishing features as the separate form the main cluster.  
 
 # Save as HTML widget (interactive)
 htmlwidgets::saveWidget(pcoa_3d, "pcoa_3d_interactive.html")
@@ -201,11 +202,10 @@ pca_2d <- ggplot(scores, aes(PC1, PC2,
 
 # Save pca at 300 dpi
 ggsave(
-  filename = "pca.jpeg",
+  filename = "Figure_6_pca.jpeg",
   plot = pca_2d,
-  width = 8,
-  height = 8,
-  units = "in",
+  width = 13.8,
+  units = "cm",
   dpi = 300,
   bg = "white"
 )
@@ -365,23 +365,6 @@ shaped_data <- ggDataShaper(dapc, k)
 
 
 
-## apply modified functions
-```{r DAPC visuals}
-p_scatter <- ggDapc_shaped(paxcan.dapc,
-                           x       = "LD1",
-                           y       = "LD2",
-                           cstar   = TRUE,
-                           ellipse = TRUE,
-                           labels  = TRUE,
-                           pt.size = 3)
-
-p_scatter <- p_scatter +
-  scale_shape_manual(
-    values = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13))
-
-p_scatter
-```
-
 
 ## bug fixes for ggDAPC
 ```{r}
@@ -467,6 +450,26 @@ temp.data <- data.frame(
 ```
 
 
+
+## apply modified functions
+```{r DAPC visuals}
+p_scatter <- ggDapc_shaped(paxcan.dapc,
+                           x       = "LD1",
+                           y       = "LD2",
+                           cstar   = TRUE,
+                           ellipse = TRUE,
+                           labels  = TRUE,
+                           pt.size = 3)
+
+p_scatter <- p_scatter +
+  scale_shape_manual(
+    values = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13))
+
+p_scatter
+```
+
+
+
 ## scree plots and compoplots + combined figure
 ```{r DAPC screes and combined}
 p_pcvar <- ggPCvar(paxcan.dapc)# cumulative PCA variance
@@ -480,15 +483,27 @@ p_combined <- (p_scatter | (p_pcvar / p_da)) / p_compo +
 
 p_combined
 
-ggsave("dapc_scatter.jpeg",
+# save the figure
+ggsave("Figure_7_dapc.jpeg",
        plot = p_combined,
-       width = 10, height = 7,
-       units = "in", dpi = 300, bg = "white")
+       width = 25,
+       units = "cm", 
+       dpi = 300, 
+       bg = "white")
 
-ggsave("compoplot.jpeg",
-       plot = p_compo,
-       width = 10, height = 4,
-       units = "in", dpi = 300, bg = "white")
+# Create Word document and insert image
+doc <- read_docx()
+
+doc <- body_add_par(doc, "dapc_scatter", 
+                    style = "heading 1")
+doc <- body_add_img(
+  doc,
+  src = "dapc_scatter.jpeg",
+  width = 8,
+  height = 8
+)
+
+print(doc, target = "dapc_scatter_figure_7.docx")
 ```
 
 
@@ -497,97 +512,5 @@ ggsave("compoplot.jpeg",
 
 
 
-# old code
-```{r}
-# dapc scatter plot
-#Scatter plot (ggDapc replaces scatter()) 
-p_scatter <- ggDapc(paxcan.dapc,
-                    x= "LD1",
-                    y= "LD2",
-                    cstar= TRUE,    # lines from individual to group centroid
-                    ellipse = TRUE, # confidence ellipses
-                    labels  = TRUE)# group name labels
-
-
-## save the dapc scatter plot as a jpeg at 300 dpi
-jpeg(
-  filename = "dapc.scatter.jpeg",
-  width = 8,
-  height = 8,
-  units = "in",
-  res = 300,
-  bg = "white"
-)
-dev.off()
-
-# Create Word document and insert image
-doc <- read_docx()
-
-doc <- body_add_par(doc, "DAPC Results Scatter Plot", 
-                    style = "heading 1")
-doc <- body_add_img(
-  doc,
-  src = "dapc.scatter.jpeg",
-  width = 8,
-  height = 8
-)
-
-print(doc, target = "dapc_results_figure_5.docx")
-
-
-# compoplot
-dapc.results <- as.data.frame(paxcan.dapc$posterior)
-dapc.results$pop <- pop(paxcan_gl)
-dapc.results$indNames <- rownames(dapc.results)
-
-# make the dataframe longer for easy visualization
-dapc.results <- pivot_longer(dapc.results, 
-                             -c(pop, indNames))
-
-# rename the columns
-colnames(dapc.results) <- c("Original_Pop","Sample","Assigned_Pop","Posterior_membership_probability")
-
-# create the compoplot
-p <- ggplot(dapc.results, 
-            aes(x = Sample, 
-                y = Posterior_membership_probability, 
-                fill = Assigned_Pop)) +
-  geom_bar(stat = 'identity') +
-  scale_fill_manual(values = my.colors1) +
-  facet_grid(~Original_Pop, scales = "free") +
-  theme_classic() +
-  theme(
-    axis.text.x = element_text(angle = 45, 
-                               hjust = 1, 
-                               vjust = 1, 
-                               size = 8)
-  )
-p
-
-# Save compositional plot at 300 dpi
-ggsave(
-  filename = "compoplot.jpeg",
-  plot = p,
-  width = 8,
-  height = 8,
-  units = "in",
-  dpi = 300,
-  bg = "white"
-)
-
-# Create Word document and insert image
-doc <- read_docx()
-
-doc <- body_add_par(doc, "Paxican_compoplot", 
-                    style = "heading 1")
-doc <- body_add_img(
-  doc,
-  src = "compoplot.jpeg",
-  width = 8,
-  height = 8
-)
-
-print(doc, target = "supplemental_figure_1_compoplot.docx")
-```
 
 
